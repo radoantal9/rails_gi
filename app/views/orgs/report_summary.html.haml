@@ -1,0 +1,214 @@
+:ruby
+  completion_data_bar = [
+    ['Progress', 'Participants', 'Invite sent', 'Invite viewed', 'Accepted and enrolled'],
+    ['Not started',     0, 0, 0, 0],
+    ['1-25%',  0, 0, 0, 0],
+    ['26-50%', 0, 0, 0, 0],
+    ['51-75%', 0, 0, 0, 0],
+    ['76-99%', 0, 0, 0, 0],
+    ['Completed',   0, 0, 0, 0]
+  ]
+
+  @course.completion_groups(@org).each do |group, users|
+    if group == 0
+      completion_data_bar[group+1][2] = @orgs_course.invitations.where(invitation_state: :invitation_sent).count
+      completion_data_bar[group+1][3] = @orgs_course.invitations.where(invitation_state: :invitation_viewed).count
+      completion_data_bar[group+1][4] = users.count
+    else
+      completion_data_bar[group+1][1] = users.count
+    end
+  end
+
+  completion_data_timeline =  @count_by_date.map{|k,v| [k["date"], k["finish_by_day"].to_i]}
+
+  completion_data_timeline = [["No data", 0]] if completion_data_timeline.empty?
+  completion_data_timeline.insert(0, ['Date', 'Completes'])
+
+  total_num_of_completes = UserEventsMaterializedView.where(org_id: @org.id, course_id: @course.id, percent_completed: 100).count
+
+= content_for :head do
+  = javascript_include_tag "https://www.google.com/jsapi"
+
+:javascript
+  google.load("visualization", "1", {packages:["corechart"]});
+
+  google.setOnLoadCallback(drawVisualization_bar);
+  google.setOnLoadCallback(drawVisualization_timeline);
+
+  function drawVisualization_bar() {
+    var data = google.visualization.arrayToDataTable(#{completion_data_bar.to_json});
+
+    var options = {
+      title: 'Participants by progress',
+      legend: { position: 'top', maxLines: 3 },
+      hAxis: {title: '%Completion'},
+      vAxis: {title: 'Participants'},
+      height: 300,
+      width: '600',
+      chartArea: {
+          left: '25%',
+          top: '3%',
+          height: '80%',
+          width: '100%'
+      },
+      isStacked: true,
+    };
+
+    var chart = new google.visualization.ColumnChart($(".course_chart_#{@course.id}")[0]);
+    chart.draw(data, options);
+  };
+  function drawVisualization_timeline() {
+      var data = google.visualization.arrayToDataTable(getTimelineArray());
+
+      var options = {
+      title : '# of Participamts Completing the Course & invites sent by Day (past 60 days)',
+      vAxis: {title:'# of participants', format: "#",  logScale: true},
+      hAxis: {slantedTextAngle: 45, slantedText: true},
+      bar: {groupWidth: "95%"},
+      legend: {  maxLines: 3},
+      width: 800,
+      height: 300,
+      fontSize: 12,
+
+      };
+
+      var chart = new google.visualization.ColumnChart($(".course_timeline_chart_#{@course.id}")[0]);
+      chart.draw(data, options);
+    };
+
+    function getTimelineArray() {
+      // Each json has date, type and count, they need to be joined by date
+      // and turned into a matrix with date, completed, invited, reminder counts
+      // Step 1- Get JSON objects
+      var completed_by_date = #{@count_by_date.to_json};
+      var invitation_count_by_date = #{@invitation_count_by_date.to_json};
+      var reminder_count_by_date = #{@reminder_count_by_date.to_json};
+
+      // Step 2 - Create a "master list" of dates by pluching the date key from all
+      // three lists and then unioning it
+      var dts = _.union(_.pluck(completed_by_date, 'date'), _.pluck(invitation_count_by_date, 'date'), _.pluck(reminder_count_by_date, 'date'));
+      // sort the dates
+      var dts_s = _.sortBy(dts, function (d) { return new Date(d).getTime()});
+
+      //pp(dts_s);
+
+      // Step 3 - create an interim object which will have date as the key, we wil iterate over the
+      // sorted date array we just created to populate this object and then lookup each list to create an array of three values as key to this date, e.g. {"2013-09-05": [0,5,12]}
+      var count_completed_invites_reminds={};
+
+      var bar_data = [];
+
+      // for each date create an array of three values
+      _.each(dts_s, populate_items_for_date);
+
+      var header = [["Date", "Completions", "Invitations sent", "Reminders sent"]];
+
+      array_date_count_completed_invites_reminds = $.merge(header, bar_data);
+
+      function populate_items_for_date(dt) {
+       comp_obj = _.find(completed_by_date, function(x){return x.date == dt});
+       inv_obj = _.find(invitation_count_by_date, function(x){return x.date == dt});
+       rem_obj = _.find(reminder_count_by_date, function(x){return x.date == dt});
+
+       var v = [0,0,0,0];
+       v[0] = dt;
+       if (comp_obj) v[1] = Number(comp_obj.finish_by_day);
+       if (inv_obj) v[2] = Number(inv_obj.count_sent);
+       if (rem_obj) v[3] = Number(rem_obj.count_sent);
+       $.merge(bar_data, [v])
+       return v;
+      };
+
+      pp(array_date_count_completed_invites_reminds);
+      return array_date_count_completed_invites_reminds;
+    };
+
+
+-#%pre= completion_data.to_json
+-#= @count_by_date.to_json
+-#= @invitation_count_by_date.to_json
+-#= @reminder_count_by_date.to_json
+
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+/ Nav tabs
+%ul.nav.nav-tabs{:role => "tablist"}
+  %li.active
+    %a{"data-toggle" => "tab", :href => "#Summary", :role => "tab"} Summary
+  %li
+    %a{"data-toggle" => "tab", :href => "#Timeline", :role => "tab"} Timeline
+  %li
+    %a{"data-toggle" => "tab", :href => "#Data", :role => "tab"} Data
+/ Tab panes
+.tab-content
+  #Summary.tab-pane.active
+    %h1 Progress Summary for: #{@course.title}
+    .lead
+      Here is a quick snapshot of your participants.  The table below shows completions over various periods.
+    .row
+      .col-md-4
+        .panel.panel-success
+          .panel-heading
+            Completions
+          %ul.list-group
+            %li.list-group-item
+
+              Past 24 hours: #{@completes_past_day}
+            %li.list-group-item
+              Past week: #{@completes_past_week}
+            %li.list-group-item
+              Past month: #{@completes_past_month}
+            %li.list-group-item
+              All time: #{@completes_all_time}
+            %li.list-group-item
+              Remaining: #{@completes_remaining}
+      .col-md-8
+        %b
+          Number of participants enrolled in course:
+          = @course.users.by_org(@org).count
+
+        %br
+
+        The following chart shows number of participant (y-axis) and how far they have progressed in the course (0% = beginning of the course, 100% = completed course)
+
+        %div{:class => "course_chart_#{@course.id}"}
+  #Timeline.tab-pane
+    %h2 Timeline of completions and invitations
+    %mark
+      (** experimental **)
+    %p
+      This chart shows trailing 60 days worth of activities which include: # of course completions, # of invitations sent to participants who have not yet registered for the course and # of reminders to those who have registered but haven't completed the course.  Note: Vertical axis is log to ensure the number of invites which is always significantly higher than completions in a given day, does not crowd out the comletion bards.
+    .row
+      .col-md-6
+        %div{:class => "course_timeline_chart_#{@course.id}", style: "width: 850px; height: 420px;"}
+
+  #Data.tab-pane.active
+    %h2 Data
+    .lead
+      The table belows shows all the invited and enrolled participants, their completion % and how many days ago did they make any progress in the course.  You can use the input fields above each column to filter the table by that column, e.g. email address.
+    %br
+
+    .row
+      .col-md-4.text-left
+        %button.btn.btn-primary.wg-external-csv-export-button{'data-grid-name'=> 'org_summary'}Export To CSV
+      .col.md-4.text-right
+        %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'org_summary'} Apply Filter
+        %button.btn.wg-external-reset-button{'data-grid-name' => 'org_summary'} Reset filter
+    %p
+      = render partial: 'org_summary_grid'
+    .row
+      .col-md-12
+        - if Rails.cache.fetch("UserEventsMaterializedView.updated_at")
+          .row
+            .col-md-12
+              %small.text-right
+                Updated:
+                = distance_of_time_in_words_to_now ( Rails.cache.fetch("UserEventsMaterializedView.updated_at") )
+                = " ago (in #{Rails.cache.fetch("UserEventsMaterializedView.update_duration").round} sec.)"
+
+    .row
+      .col-md-12
+        = render_grid(@org_summary_grid)
+

@@ -1,0 +1,11 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active All users
+
+= link_to 'Create User', new_org_user_path(@org), class: 'btn btn-primary pull-right'
+
+%h2 Users
+
+= render 'org_users/users_grid'
+
+= render_grid(@users_grid)

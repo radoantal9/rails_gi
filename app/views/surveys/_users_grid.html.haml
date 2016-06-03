@@ -1,0 +1,10 @@
+= define_grid(@users_grid, show_filters: :always) do |g|
+  - g.action_column
+
+  - g.column name: 'Email', attribute: 'email', filter: false, html: { class: 'email' }
+
+  - g.column name: '% completion', html: { class: 'completion' }  do |user|
+    - @course.fitted_user_completion(user)
+
+  - g.column name: 'Current Module' do |user|
+    - @course.current_learning_module(user).try :title

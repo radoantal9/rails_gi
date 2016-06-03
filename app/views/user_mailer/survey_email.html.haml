@@ -1,0 +1,39 @@
+%table.row
+  %tr
+    %td.wraper
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            .email-header
+              Course Survey
+
+            %div
+              Click here to
+              #{ link_to 'start now as '+ @survey.survey_email, show_survey_url(token: @survey.survey_token) }
+
+            %div.custom-org-email-messsage
+              - if @custom_email_message
+                = raw @custom_email_message
+
+              - if @course_email
+                = raw @course_email.email_message
+
+              - if @org_course_email
+                = raw @org_course_email.email_message
+            %p
+
+          %td.expander
+  %tr
+    %td.wrapper
+      %table.six.columns
+        %tr
+          %td.expander
+          %td
+            %table.large-button
+              %tr
+                %td
+                  - btn_text = 'Get started now as ' + @survey.survey_email
+                  #{ link_to btn_text, show_survey_url(token: @survey.survey_token) }
+      %td.wrapper.last
+= image_tag track_survey_url(token: @survey.survey_token, format: 'png'), alt: '1x1'

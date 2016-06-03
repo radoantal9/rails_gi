@@ -1,0 +1,147 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li= link_to 'All users', org_users_path(@org)
+
+%h3
+  = @user.first_name
+  = @user.last_name
+%p 
+  = mail_to @user.email, @user.email + " (click to email)"
+
+.user-actions
+  - if can? :email, @user
+    - can_remind = @user.courses.any? {|course| !course.is_course_completed?(@user) }
+  - if can_remind
+    = link_to 'Send reminder email', email_org_user_path(@org, @user, email_type: 'reminder'), method: :post, data: { confirm: "Are you sure?" }, class: 'btn btn-primary'
+
+  = link_to 'Send reset password email', email_org_user_path(@org, @user, email_type: 'password'), method: :post, data: { confirm: "Are you sure?" }, class: 'btn btn-primary'
+
+  - if can? :update, @user
+    = link_to 'Edit User', edit_org_user_path(@org, @user), class: 'btn btn-primary'
+
+  .pull-right
+    - if can? :reset_progress, @user
+      = link_to 'Reset User Progress', reset_progress_org_user_path(@org, @user), method: :post, data: { confirm: "Are you sure to delete course events and question responses?" }, class: 'btn btn-primary'
+
+    - if can? :destroy, @user
+      = link_to 'Delete User', org_user_path(@org, @user), method: :delete, data: { confirm: "Are you sure to delete user?" }, class: 'btn btn-danger'
+
+
+%br
+.row
+  .col-lg-6
+    .panel.panel-primary
+      .panel-heading
+        %p Course Enrollment
+      .panel-body
+        %table.table.table-striped
+          %tr
+            %th Name
+            %th Enrollment date
+            %th Last login date
+            %th % complete
+
+          - @user.courses.each do |course|
+            %tr
+              %td= course.name
+              %td= as_date @user.user_events.by_course(course).by_event_type('course_begin').first.try(:event_time)
+              %td= as_date @user.current_sign_in_at
+              %td= course.fitted_user_completion(@user)
+
+  .col-lg-6
+    .panel.panel.panel-warning
+      .panel-heading
+        %p Add comments (visible to managers only)
+      .panel-body
+        - @user.root_comments.each do |comment|
+          .header(style="font-size: 12px")
+            = comment.created_at
+            = comment.author.full_name
+          %blockquote
+            = comment.comment_body
+        = form_for Comment.new, url: comment_org_user_path(@org, @user), method: :post do |f|
+          .form-group
+            = f.text_area :comment_body, placeholder: 'Type your comment here', class: 'form-control', style: 'height: 100px'
+          = f.submit 'Add Comment', class: 'btn btn-default pull-right'
+
+
+
+
+%h3 Activity stream
+%p.text-right
+  %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'user_events'} Apply Filter
+  %button.btn.wg-external-reset-button{'data-grid-name' => 'user_events'} Reset filter
+= render 'orgs/user_events_grid'
+
+= render_grid(@user_events_grid)
+
+- if @email_json
+  .container-fluid
+    .row
+      .col-md-12
+        %h1 Email Delivery History
+        .col-md-4
+          %p.lead
+            The table below shows actual email delivery status and attempts (updated ~30 minutes).
+        .col-md-8
+          %strong Delivery Status
+          %table.table
+            %tr
+              %td.text-right
+                %span.badge.email-delivery-pill.sent sent
+              %td Message was accepted by recipient's mail server with an expectation that it will be delivered
+            %tr
+              %td.text-right
+                %span.badge.email-delivery-pill.soft-bounced soft-bounced
+              %td Get Inclusive mail server gave up because recipient's mail server did not accept the message (e.g., sending limit restriction imposed)
+            %tr
+              %td.text-right
+                %span.badge.email-delivery-pill.unsub unsub
+              %td Recipient clicked the "unsubscribe link" in Get Inclusive email footer.  No further emails will be delivered.
+            %tr
+              %td.text-right
+                %span.badge.email-delivery-pill.rejected rejected
+              %td Get Inclusive mail server did not attempt to deliver the email, e.g., recipient previously unsubscribed
+            %tr
+              %td.text-right
+                %span.badge.email-delivery-pill.bounced bounced
+              %td Recipent server indicated that this email address is invalid.  Get Inclusive will not make future attempts to this known and bouncing email address
+        %table.table
+          %tr
+            %th Email Delivery Status
+            %th Delivery activity
+            %th Subject
+            %th User Action (opens/clicks)
+            %th Details
+          - n=1
+          - @email_json.each do |x|
+            %tr
+              %td
+                %span.badge.email-delivery-pill{:class => "#{x['state']}"}
+                  = x['state']
+              %td.text-right{style: "white-space: nowrap;"}
+                = x['created_at'].in_time_zone.strftime(APP_CONFIG["time_zone_strftime_format"])
+
+                %small.text-muted
+                  - if x['meta_data']['smtp_events']
+                    %br
+                    - smtp_events = eval(x['meta_data']['smtp_events'])
+                    - smtp_events.each do |ev|
+                      = "#{ev['type']}@#{Time.zone.at(ev['ts']).strftime(APP_CONFIG["time_zone_strftime_format"])}"
+                      %br
+                  - if x['meta_data']['reject']
+                    %br
+                    = "Not delivered, reason: #{eval(x['meta_data']['reject'])['reason']} on: #{eval(x['meta_data']['reject'])['last_event_at'].in_time_zone.strftime(APP_CONFIG["time_zone_strftime_format"])}"
+
+              %td
+                = x['subject']
+              %td
+                = "#{x['opens']} / #{x['clicks']}"
+              %td
+                %button.btn.btn-xs.btn-default{:type => "button", "data-trigger" => "click", "data-container" => "body", "data-toggle" => "popover", "data-content" => "<pre>#{JSON.pretty_generate(x)}</pre>", "data-html" => "true", "data-placement" => "left"}
+                  ="..."
+- else
+  Emails not found
+  = @exception_message
+
+

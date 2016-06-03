@@ -1,0 +1,43 @@
+%table.row
+  %tr
+    %td.wraper
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            .email-header
+              Course Invitation
+
+            %div
+              You are invited to "#{ @course.title }".
+              Click here to
+              #{ link_to 'start now as '+ @invitation.invitation_email, register_student_url(token: @invitation.invitation_token) }
+            %div.custom-org-email-messsage
+              - if @custom_email_message
+                = raw @custom_email_message
+
+              -#- if @course_email
+                = raw @course_email.email_message
+
+              -#- if @org_course_email
+                = raw @org_course_email.email_message
+            %p
+              %i
+                Note - this invitation can only be used by #{@invitation.invitation_email}.  If that is not you then please
+                #{link_to 'click here to register.', register_course_url(code: @invitation.orgs_course.enrollment_code) }
+            %p
+
+          %td.expander
+  %tr
+    %td.wrapper
+      %table.six.columns
+        %tr
+          %td.expander
+          %td
+            %table.large-button
+              %tr
+                %td
+                  - btn_text = 'Get started now as ' + @invitation.invitation_email
+                  #{ link_to btn_text, register_student_url(token: @invitation.invitation_token) }
+      %td.wrapper.last
+= image_tag track_invitation_url(token: @invitation.invitation_token, format: 'png'), alt: '1x1'

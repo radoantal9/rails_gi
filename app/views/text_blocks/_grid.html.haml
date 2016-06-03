@@ -1,0 +1,16 @@
+= define_grid(@text_blocks) do |g|
+  - g.column name: 'Private title', attribute: 'private_title', detach_with_id: :title_filter do |uc|
+    - if uc.private_title
+      - link_to(uc.private_title, text_block_path(uc) )
+    - else
+      - ""
+  - g.column name: 'Updated at', attribute: 'updated_at', detach_with_id: :updated_at_filter do |uc|
+    - uc.updated_at.to_s(:long)
+  - g.column name: 'Associated content pages' do |uc|
+    - raw uc.content_pages.map{|elem| link_to(elem.name, content_page_path(elem))}.join(", ")
+  - g.column do |uc|
+    - link_to('Show', text_block_path(uc) )
+  - g.column do |uc|
+    - link_to('Edit', edit_text_block_path(uc) )
+  - g.column do |uc|
+    - link_to 'Destroy', uc, :method => :delete, :data => { :confirm => 'Are you sure?' }

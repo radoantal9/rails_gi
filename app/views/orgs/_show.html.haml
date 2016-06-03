@@ -1,0 +1,136 @@
+= content_for :head do
+  = javascript_include_tag "https://www.google.com/jsapi"
+
+:javascript
+  google.load("visualization", "1", {packages:["corechart"]});
+
+:ruby
+  completion_data = [
+    ['Participants', 'completion %'],
+    ['Completed',  UserEventsMaterializedView.where(org_id: org.id, percent_completed: 100).count],
+    ['In Progress',UserEventsMaterializedView.where(org_id: org.id).where("percent_completed between ? and ?", 1, 99).count],
+    ['Registered but Not Started', UserEventsMaterializedView.where(org_id: org.id, registered: "Yes", percent_completed: 0).count],
+    ['Invitation Not Accepted', UserEventsMaterializedView.where(org_id: org.id, registered: "No").count]
+  ]
+
+-#%pre= completion_data.to_json
+
+:javascript
+  google.setOnLoadCallback(function() {
+    var data = google.visualization.arrayToDataTable(#{completion_data.to_json});
+
+    var options = {
+      pieHole: 0.3,
+      fontSize: 14,
+      width: 500,
+      height: 200,
+      title: "Overall progress",
+      legend: {position: 'right', textStyle: {color: 'black', fontSize: 14}},
+      chartArea: {width: '100%', height: '100%'},
+      colors: ['#2dcb73', '#FF8E0B', '#FFB45E', 'silver'],
+    };
+
+    var chart = new google.visualization.PieChart($(".org_chart_#{org.id}")[0]);
+    chart.draw(data, options);
+  })
+
+.text-right
+  = link_to "PDF Report", org_progress_report_path(org_id: org.id, :format => "pdf")
+  %i.fa.fa-file-pdf-o{style: "font-size: 2em"}
+.row
+  .col-md-4.col-sm-12
+    .well
+      %h1
+        = org.name
+      %table
+        %tr
+          %td
+            .completed-num
+              = number_with_delimiter(UserEventsMaterializedView.where(org_id: org.id, percent_completed: 100).count, delimiter: ',')
+          %td
+            .participants-num
+              \/#{number_with_delimiter(UserEventsMaterializedView.where(org_id: org.id).count, delimiter: ',')}
+        %tr
+          %td.text-center Completed
+          %td.text-center Total
+
+      %dl.dl-horizontal
+        -unless org.name.blank?
+          %dt
+          %dd
+
+  .col-md-8.col-sm-12
+    %div{:class => "org_chart_#{org.id}", :style => "width: 600px; height: 200px;"}
+  .col-md-12
+    %h3 
+      Courses:
+    %table.table.table-striped.table-hover.table-condensed.table-bordered
+      %tr
+        %th Course
+        %th.text-center
+          Progress
+          %br (done / total)
+        %th Enrollment Code
+        %th.text-center View Reports
+        %th.text-center Communications
+      - org.courses.each do |course|
+        %tr
+          %td
+            = link_to "#{course.title}", course
+            .text-muted.small
+              = course.name
+          %td.text-center#progress-pills
+            %span.badge.brandcolor_bg
+              = number_with_delimiter(UserEventsMaterializedView.where(org_id: org.id, course_id: course.id, percent_completed: 100).count, delimiter: ',')
+            %span.badge
+              = number_with_delimiter(UserEventsMaterializedView.where(org_id: org.id, course_id: course.id).count, delimiter: ',')
+          %td
+            = course.orgs_courses.by_org(org).first.enrollment_code
+            %a{"data-target" => ".url-modal-lg-#{course.id}", "data-toggle" => "modal"} (link)
+            .modal.fade{"class" => "url-modal-lg-#{course.id}", "aria-hidden" => "true", "aria-labelledby" => "myLargeModalLabel", role: "dialog", tabindex: "-1"}
+              .modal-dialog.modal-lg
+                .modal-content
+                  .modal-header
+                    %button.close{"data-dismiss" => "modal", type: "button"}
+                      %span{"aria-hidden" => "true"} ×
+                      %span.sr-only Close
+                    .strong
+                      Self-Enrollment Registration Link
+                  .modal-body
+                    Copy the link below and provide to your participants.  To copy (press control-c in Windows, or command-c for Mac)
+                    - @registration_url = register_course_url(:code => course.orgs_courses.by_org(org).first.enrollment_code)
+                    .well.course-url
+                      = @registration_url
+                  .modal-footer
+                    %button.btn.btn-default{"data-dismiss" => "modal", type: "button"} Close
+          %td.text-center#org-actions
+            - if can?(:report_summary, org)
+              = link_to report_summary_org_path(org, course), class: "btn btn-success btn-sm", title: 'View summary report', rel: 'tooltip' do
+                Summary
+            -#- if can?(:course_users, org)
+            -#  = link_to org_course_users_path(org, course), class: "btn btn-primary btn-sm", title: 'View User Details', rel: 'tooltip' do
+            -#    Users
+            - if can?(:report_aging, org)
+              = link_to report_aging_org_path(org, course), class: "btn btn-primary  btn-sm", title: 'View Aging Report which shows how many days have elapsed since a participant made progress.  You can use this report to follow up with individuals who have been inactive for an unusually long period', rel: 'tooltip' do
+                Aging
+
+            -#- if can?(:report_responses, org)
+            -#  = link_to report_responses_org_path(org, course), class: "btn btn-primary  btn-sm", title: 'View Student responses', rel: 'tooltip' do
+            -#    Student Responses
+          %td.text-center#org-communications
+            - if can?(:create_invitation, course)
+              = link_to org_course_invitations_path(org, course), class: "btn btn-primary btn-sm", title: 'Create bulk invitations, view invitation status or resend invitations to participants', rel: 'tooltip' do
+                Invitations
+            - if can?(:create_reminder, course)
+              = link_to org_course_reminders_path(org, course), class: "btn btn-primary  btn-sm", title: 'Send/view reminders for participants who have enrolled in the course', rel: 'tooltip' do
+                Reminders
+            - if can?(:create_survey, course)
+              = link_to org_course_surveys_path(org, course), class: "btn btn-primary  btn-sm", title: 'Send/view surveys for participants who have enrolled in the course', rel: 'tooltip' do
+                Surveys
+            - if can?(:email_index, org)
+              = link_to email_index_org_path(org, course), class: "btn btn-primary  btn-sm", title: 'Customize emails for your organization', rel: 'tooltip' do
+                Customize
+.row
+  .col-md-12
+    = link_to 'Manage users', org_users_path(org), class: 'btn btn-default'
+    = link_to 'Course Customizations', org_resources_path(org), class: 'btn btn-default'

@@ -1,0 +1,37 @@
+= form_tag reports_survey_path, class: 'form-small' do
+  .form-group
+    %label{for: 'org_id'} Org:
+    = select_tag :org_ids, options_from_collection_for_select(Org.all, :id, :name), multiple: true, class: "multiselect"
+    -#%select.select2.form-control{name: 'org_id'}
+      %option{value: ''} Select One
+      - Org.select('id, name').each do |org|
+        %option{value: org.id}= org.name
+
+  .form-group
+    %label{for: 'from_from'} From:
+    %input.form-control#from{name: 'from', type: 'date'}
+
+    #from_fallback{style: 'display: none'}
+      = date_select(:from, :from, include_blank: true)
+
+  .form-group
+    %label{for: 'to_to'} To:
+    %input.form-control#to{name: 'to', type: 'date'}
+
+    #to_fallback{style: 'display: none'}
+      = date_select(:to, :to, include_blank: true)
+
+  %input.btn.btn-primary{'type' => 'submit', 'value' => 'Download'}
+
+:javascript
+  $("#from").val("=(");
+  // if date type is supported, =( is an invalid
+  // input, so the value should remain empty.
+  // If it does not, then HTML5 input type
+  // date, is not supported.
+  if( $("#from").val() != '' ) {
+    $("#from,#to").remove();
+    $("#to_fallback,#from_fallback").show();
+  } else {
+    $("#to_fallback,#from_fallback").remove();
+  }

@@ -1,0 +1,33 @@
+= render 'shared/ace_editor'
+
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+%h3 Organization-wide emails
+Get sent to all participants who signup as a participant in any course your organization has subscribed to or when managers register new accounts
+
+.well
+  %ul.list-inline
+    %li
+      %p 
+        Preview: 
+        = link_to 'Welcome email', email_show_org_path(@org, @course, 'welcome_student', 'rich.html'), target: '_blank', class: 'btn btn-default btn-sm'
+
+  = render 'course_mails/form', object: @org, email_types: [:welcome_student], relation_name: :org_mails,
+                                no_subject: true, url: update_org_mails_org_path(@org)
+
+%h3 Course emails
+
+.well
+  %ul.list-inline
+    %li Preview:
+    %li
+      = link_to 'Enrollment email', email_show_org_path(@org, @course, 'enrollment', 'rich.html'), target: '_blank', class: 'btn btn-default btn-sm'
+    %li
+      = link_to 'Completion email', email_show_org_path(@org, @course, 'completion', 'rich.html'), target: '_blank', class: 'btn btn-default btn-sm'
+    %li
+      = link_to 'Reminder email', email_show_org_path(@org, @course, 'reminder', 'rich.html'), target: '_blank', class: 'btn btn-default btn-sm'
+
+  = render 'course_mails/form', object: @orgs_course, email_types: CourseMail::ORG_COURSE_EMAIL_TYPES,
+                                url: update_course_mails_orgs_course_path(@orgs_course)

@@ -1,0 +1,50 @@
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            .email-header
+              = @mailing_type
+            %p
+              Org:
+              = @org.name
+              \/
+              Course:
+              = @course.title
+
+
+            %h6 Summary
+            Definitions:
+            %ul
+              %li Ignored - Participants who have a pending invitation
+              %li Enrolled - Participants who already accepted a prior invitation and are enrolled are have started/completed the course
+              %li Invited - These new invitations were actually sent
+              %li Error - How many emails encountered a sending error (technical)
+
+            %table(border="1" cellpadding="5" margin="2")
+              %thead
+                %tr
+                  %th Result type
+                  %th Number of emails
+
+                - @stats.each do |group, emails|
+                  %tr
+                    %td= group
+                    %td{style: "text-align: center;"}= emails.count
+
+            %br
+
+            %h6 Detail
+
+            %table(border="1" cellpadding="5" margin="2")
+              %thead
+                %tr
+                  %th Result type
+                  %th Emails
+
+                - @stats.each do |group, emails|
+                  %tr
+                    %td= group
+                    %td= emails.join(', ')

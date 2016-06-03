@@ -1,0 +1,26 @@
+- url = @user.new_record? ? org_users_path(@org) : org_user_path(@org, @user)
+
+= simple_form_for @user, url: url, html: { class: 'form-small form-horizontal', role: 'form' } do |f|
+  = f.input :first_name
+  = f.input :last_name
+  = f.input :email
+  = f.input :password
+  = f.input :password_confirmation
+
+  - if can? :set_roles, @user
+    .form-group
+      .form-group
+        .col-md-2.control-label
+          %label.control-label Roles
+        .col-md-10
+          = f.select :user_roles, User.valid_roles, { }, { :multiple => true, :class => 'select2', style: 'width: 30%' }
+
+  .form-group
+    .form-group
+      .col-md-2.control-label
+        %label.control-label Enrolled courses
+      .col-md-10
+        = select_tag :course_ids, options_from_collection_for_select(@org.courses, 'id', 'name', params[:course_ids]),
+          { :multiple => true, :class => 'select2', style: 'width: 30%' }
+
+  = f.button :submit

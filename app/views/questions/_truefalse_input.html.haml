@@ -1,0 +1,55 @@
+.radio_div{:id => "radio_div_#{@question.id}"}
+  %h3.question_heading
+    - if @number
+      = "Question #{@number}: "
+    = render_statement @question
+  %br
+  - @question.xmlnode.xpath('//choice').each do |ch|
+    - id = QuestionHelper.uniq_name_creator(ch['text'])
+    .true_false_inputs.well{ :id => "#{id}"}
+      %h5.true_false_label= ch['text']
+      %div
+        %label{:for => "#{id}_true", :"data-for" => ch['text']}
+          %span.true_false_text True
+          %input.true_input{:id => "#{id}_true", :type => "radio", 
+            :name => "#{@question.id}[#{ch['text']}]", :value=>"true"}
+          -#- if user_signed_in? and current_user.is_admin? and ch['answer'] == 'true'
+          -#  [correct]
+
+          = option_responses_count @question.id, ch['text'], 'true'
+
+          %span.correct_incorrect_text{:id=>"cor_incor_text_#{id}_true"}
+            &nbsp;
+
+        %br
+        %label{:for => "#{id}_false"}
+          %span.true_false_text False
+          %input.false_input{:id => "#{id}_false", :type => "radio", 
+            :name => "#{@question.id}[#{ch['text']}]", :value=>"false"}
+          -#- if user_signed_in? and current_user.is_admin? and ch['answer'] == 'false'
+          -#  [correct]
+
+          = option_responses_count @question.id, ch['text'], 'false'
+
+          %span.correct_incorrect_text{:id=>"cor_incor_text_#{id}_false"}
+            &nbsp;
+
+      = render partial: 'questions/comment_choice', locals: { choice: ch }
+
+      %br
+
+.result_box.alert.alert-block{:name => "result_box_#{@question.id}", 
+  "data-count"=>"#{@question.get_number_of_choices}", :id=>"result_box_#{@question.id}"}
+  %h4.alert-heading
+    Resulting:
+  %div{:name => "resulting_message"}
+    Message:
+    %p
+      Correct number:
+      %span{:id => "count_correct_#{@question.id}"}
+        0
+      from
+      %span{:id => "count_all_#{@question.id}"}
+        0
+    %p{:id => "help_correct_#{@question.id}"}
+    %p{:id => "help_incorrect_#{@question.id}"}

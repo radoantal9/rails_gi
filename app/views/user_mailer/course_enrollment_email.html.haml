@@ -1,0 +1,43 @@
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            %h2 Enrollment
+
+            %div
+              You are now enrolled in "#{ @course.title }".
+
+            - if @course_email
+              = raw @course_email.email_message
+
+            - if @org_course_email
+              = raw @org_course_email.email_message
+
+            %div
+              - if @user_course
+                = link_to 'Click to Start the Course', token_authenticate_url(@user.generate_authentication_token, course: @user_course.generate_authentication_token)
+              - else
+                = link_to 'Click to Start the Course', start_course_url(@course)
+
+          %td.expander
+-# Row contianing the button.  It is split into 3 columns and middle is where the button will go
+%table.row
+  %tr
+    %td
+      %table.block-grid.three-up
+        %tr
+          %td
+            -#1st column around button
+          %td
+            %table.button.large-button.radius
+              %tr
+                %td
+                  - if @user_course
+                    = link_to 'Get Started', token_authenticate_url(@user.generate_authentication_token, course: @user_course.generate_authentication_token)
+                  - else
+                    = link_to 'Get Started', start_course_url(@course)
+          %td
+            -#3rd column around button

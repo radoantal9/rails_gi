@@ -1,0 +1,27 @@
+= link_to 'Edit', edit_lesson_path(@lesson)
+\|
+= link_to 'Back', lessons_path
+
+
+
+%p#notice= notice
+.form-actions
+  = link_to 'Back', lessons_path, class: "btn btn-primary"
+  = link_to 'Edit', edit_lesson_path(@lesson), class: "btn btn-info"
+  = link_to "Change sort order", sort_lesson_path, :class => "btn btn-info"
+%h3
+  %b Lesson:
+  = @lesson.name + " (#{@lesson.id.to_s})"
+
+%p
+  - if @lesson.text_block 
+    = render_text_block(@lesson.text_block)
+
+%p
+  %b
+    Content Pages (#{@lesson.content_pages.count}):
+
+  %ul
+    - @lesson.content_pages.order("position").each do |d|
+      %li
+        = link_to d.name, d

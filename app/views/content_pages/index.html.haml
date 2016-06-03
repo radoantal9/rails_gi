@@ -1,0 +1,48 @@
+:javascript
+  $(function() {
+    $('#grid_f_course_pages_page_num_eq').keypress(function (e) {
+       if (e.which < 48 || e.which > 57) {
+         return false;
+      }
+    });
+  })
+
+%h3 Content Pages
+%p Content Page has text blocks, quizzes, and non-graded questions, e.g essays (reflection questions)
+= link_to 'New Content page', new_content_page_path, :class=>"btn btn-primary pull-right"
+
+= render partial: 'grid'
+
+.row
+  .col-md-8
+    .col-md-2
+      Page number:
+    .col-md-6
+      = grid_filter @content_pages, :page_filter
+.row
+  .col-md-8
+    .col-md-2
+      Name:
+    .col-md-6
+      = grid_filter @content_pages, :name_filter
+
+.row
+  .col-md-8
+    .col-md-2
+      Retired:
+    .col-md-6
+      = grid_filter @content_pages, :updated_at_filter
+
+.row
+  .col-md-8
+    .external-buttons
+      %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'grid'} Submit
+      %button.btn.wg-external-reset-button{'data-grid-name' => 'grid'} Reset
+%br
+
+.row
+  .col-md-12
+    = render_grid(@content_pages)
+
+%br
+

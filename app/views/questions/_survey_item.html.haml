@@ -1,0 +1,73 @@
+.survey_item
+  - @block.each do |item|
+    - next if item.attributes == {}
+    - if item["type"] == "statement"
+      %p=item["text"]
+      - next
+
+    - @counter += 1
+    - name = QuestionHelper.uniq_name_creator(item['text'])
+
+    - options = {name: name, id: name}
+    - options['data-required'] = 'true' if item["required"].true? || (@question.xmlnode.xpath('//question/options').first['require_all'].true? and not item["required"].false?)
+    - options['data-folded']   = 'true' if item['folded'].true?
+
+    %div.survey_question
+      - if options['data-required'] == 'true'
+        .label.label-info required
+        %br
+      - case item["type"]
+
+      - when 'single_choice'
+        %span!= item['text']
+        %br
+        - item.children.each do |option|
+          - next if option.attributes.blank?
+          - id = @counter.to_s + '_' + QuestionHelper.uniq_name_creator(item['text'] + '_' + option['value'])
+          %label{:for => id}
+            %input{{:type => 'radio', :name => name, :id => id, :value => option['value']}.reverse_merge(options)}
+            = option['value']
+
+      - when 'multi_choice'
+        %span!= item['text']
+        - item.children.each do |option|
+          - next if option.attributes.blank?
+          - id = @counter.to_s + '_' + QuestionHelper.uniq_name_creator(item['text'] + '_' + option['value'])
+          .checkbox
+            %label{:for => id}
+              %input{{:type => 'checkbox', :name => name, :id => id, :value => option['value']}.reverse_merge(options)}= option['value']
+
+      - when 'date'
+        %label{:for => name}
+          != item['text']
+          %div.date.list-inline.form-inline
+          = select_date Date.today,{ prefix: name, start_year: Time.now.year - 25, end_year: Time.now.year + 25}, {:class => 'form-control'}
+
+      - when 'number', 'text'
+        %label{:for => name}
+          != item['text']
+          %input.form-control{{:type => item['type'], :name => name, :id => name}.reverse_merge(options)}
+
+      - when 'textarea'
+        %label{:for => name}
+          != item['text']
+          %textarea.form-control{{:name => name, :id => name, :rows => 10}.reverse_merge(options)}
+
+      - when 'dropdown'
+        %label{:for => name}
+          != item['text']
+          %select.form-control.select-fillin{{:id => name, :name => name}.reverse_merge(options)}
+            %option{:value => ''} Select One
+            - item.children.each do |option|
+              - next if option.attributes.blank?
+              %option{:value => option['value'], 'data-fillin' => option['fillin'].true?.to_s}= option['value']
+
+      - when 'signature'
+        %label{:for => name, :style => 'width: 100%'}
+          != item['text']
+          %a.signature_clear.btn.btn-default(href="#") Clear
+          .signature{{:type => item['type']}.reverse_merge(options)}
+
+      - else
+        = raise "Can't handle a #{item['type']}"
+    %hr

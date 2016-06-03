@@ -1,0 +1,59 @@
+:coffee
+  $ ->
+    orgs = #{ Org.all.to_json(methods: [:courses]) }
+    pp orgs
+    $('#org_id').change ->
+      $('#course_id option').remove()
+
+      org_id = Number($('#org_id').val())
+      if org_id > 0 && (org = _.find orgs, (org)-> org.id == org_id)
+        pp org
+        for course in org.courses
+          $('#course_id').append """<option value="\#{course.id}">\#{course.name}</option>"""
+
+    $('.check_all').click ->
+      check_all = $('.check_all').is(':checked')
+      $('.check_user').prop('checked', check_all)
+
+%h3 Anonymize old production data
+
+= form_tag anonymize_orgs_path, :method => :post, class: 'form-small' do
+  - unless @org && @course
+    .form-group
+      = label_tag :org_id
+      = select_tag :org_id, options_from_collection_for_select(Org.all, :id, :name, params[:org_id]), :include_blank => true, :class => "form-control"
+    .form-group
+      = label_tag :course_id
+      = select_tag :course_id, nil, :class => "form-control"
+
+    = submit_tag 'Select', :class => 'btn btn-primary'
+
+  - else
+    = hidden_field_tag :org_id, params[:org_id]
+    = hidden_field_tag :course_id, params[:course_id]
+
+    %ol.breadcrumb
+      %li= @org.name
+      %li= @course.name
+
+    = link_to 'Choose another org', anonymize_orgs_path, class: 'btn btn-default'
+
+    %br
+    %br
+
+    %table.table
+      %thead
+        %th
+          %input.check_all(type="checkbox" checked)
+        %th Student name
+
+      - @org.course_students(@course).order('first_name ASC, last_name ASC').each do |user|
+        %tr
+          %td
+            %input.check_user{type: "checkbox", name: "user_ids[]", value: user.id, checked: true}
+            &nbsp;
+            = user.id
+
+          %td= user.full_name
+
+    = submit_tag 'Anonymize', :class => 'btn btn-primary'

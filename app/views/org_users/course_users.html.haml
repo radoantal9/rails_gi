@@ -1,0 +1,13 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+= link_to 'Create User', new_org_user_path(@org, 'course_ids[]' => @course.id), class: 'btn btn-primary pull-right'
+
+%h2 Users
+
+%h3= @course.name
+
+= render 'org_users/users_grid'
+
+= render_grid(@users_grid)

@@ -1,0 +1,21 @@
+= define_grid(@question_responses,  hide_submit_button: true, hide_reset_button: true ) do |g|
+  - g.column name: 'Question type' do |uc|
+    - uc.question_type.to_s
+
+  - g.column name: 'Title question', attribute: 'title', detach_with_id: :title_filter do |uc|
+    - uc.title || uc.question.try(:title)
+
+  - g.column name: 'Statement' do |uc|
+    - uc.statement
+
+  - g.column name: 'Email' do |uc|
+    - if can? :see_response_user, uc
+      - uc.user.email
+    - else
+      - 'hidden'
+
+  - g.column name: 'Org', model:'Org', attribute:'name', detach_with_id: :org_filter, custom_filter: :auto, allow_multiple_selection: true do |uc|
+    - uc.user.org.name
+
+  - g.column name: 'Submission' do |uc|
+    - uc.answer_for_report

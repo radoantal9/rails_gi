@@ -1,0 +1,7 @@
+org: 7
+course: 1
+deadline: "2013-12-18 12:00:00 PST"
+message: ""
+course_length_in_hours: 3.5
+file_target_email_list: 'tmp/student_reminder_email_list.txt'
+file_sent_email_list: 'tmp/students_sent_emails.txt'

@@ -1,0 +1,14 @@
+= simple_form_for(@quiz, html: { class: 'form-horizontal', role: 'form' }) do |f|
+  - if @quiz.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@quiz.errors.count, "error")
+        prohibited this quiz from being saved:
+      %ul
+        - @quiz.errors.full_messages.each do |msg|
+          %li= msg
+  = f.input :name, label: "Name", input_html: {rows: '4'}
+  = f.input :title, label: "Title", input_html: {rows: '4'}
+  = f.input :instructions, label: "Quiz instructions", input_html: {rows: '4'}
+  = f.association :questions, collection:Question.graded_questions.order("updated_at desc"), as: :check_boxes,  label: "Questions", label_method: :question_label,:input_html => { :size =>"#{Question.graded_questions.length}" }
+  = f.submit nil, class:"btn btn-primary"

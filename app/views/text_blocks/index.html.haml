@@ -1,0 +1,30 @@
+%h3 Text Blocks
+
+= link_to 'New Text block', new_text_block_path, :class => "btn btn-primary pull-right"
+
+= render partial: 'grid'
+
+.row
+  .col-md-8
+    .col-md-2
+      Title:
+    .col-md-6
+      = grid_filter @text_blocks, :title_filter
+
+.row
+  .col-md-8
+    .col-md-2
+      Updated:
+    .col-md-6
+      = grid_filter @text_blocks, :updated_at_filter
+
+.row
+  .col-md-8
+    .external-buttons
+      %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'grid'} Submit
+      %button.btn.wg-external-reset-button{'data-grid-name' => 'grid'} Reset
+%br
+
+.row
+  .col-md-12
+    = render_grid(@text_blocks)

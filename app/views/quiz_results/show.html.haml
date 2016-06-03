@@ -1,0 +1,9 @@
+%h3 QuizResults#show
+
+%pre
+  = MultiJson.dump(@quiz_result.as_json, :pretty => true)
+
+- @quiz_result.question_grade_reports.each do |question_grade|
+  = question_grade.id
+  %pre
+    = MultiJson.dump(question_grade.as_json, :pretty => true)

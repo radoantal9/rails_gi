@@ -1,0 +1,17 @@
+= form_for @text_block do |f|
+  - if @text_block.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@text_block.errors.count, "error")} prohibited this text_block from being saved:"
+      %ul
+        - @text_block.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.hidden_field :id, value: @text_block.id
+  .form-group
+    = f.label :private_title
+    = f.text_area :private_title, :rows => 1, :class => "form-control"
+  .form-group
+    = f.label :raw_content
+    = input_text_block f
+  .actions
+    = f.submit 'Save', :class => "btn btn-default"

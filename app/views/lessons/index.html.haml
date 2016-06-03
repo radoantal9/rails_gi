@@ -1,0 +1,27 @@
+%h3 Lessons
+= link_to 'New Lesson', new_lesson_path, :class=>"btn btn-primary pull-right"
+%br
+%br/
+%table.table.table-striped
+  %tr
+    %th Id
+    %th Name
+    %th Title
+    %th Content Pages
+    %th
+    %th
+    %th
+
+  - @lessons.each do |lesson|
+    %tr
+      %td= lesson.id
+      %td= lesson.name
+      %td= lesson.title
+      %td
+        %span.badge= lesson.content_pages.count
+      %td= link_to 'Show', lesson
+      %td= link_to 'Edit', edit_lesson_path(lesson)
+      %td= link_to 'Destroy', lesson, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+

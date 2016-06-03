@@ -1,0 +1,55 @@
+
+-#Not enrolled/0% - Get Started Now
+-#0-20%           - Continue the Progress
+-#20-50%          - Halfway There
+-#50%             - Almost Done
+
+
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            .email-header
+              Course Reminder
+
+            %div
+              = @user.first_name.titleize + " - " unless @user.first_name.blank?
+              You have completed
+              %span.completion-percent-number
+                = @completion_percentage.to_s + "%"
+              of
+              = @course.title
+
+            - if @course_email
+              .custom-reminder-message
+                = raw @course_email.email_message
+
+            - if @org_course_email
+              .custom-reminder-message
+                = raw @org_course_email.email_message
+
+            %div
+              %a{:href => token_authenticate_url(@user.generate_authentication_token, reminder: @reminder.try(:reminder_token))} Click to continue where you left off.
+
+          %td.expander
+-# Row contianing the button.  It is split into 3 columns and middle is where the button will go
+%table.row
+  %tr
+    %td
+      %table.block-grid.four-up
+        %tr
+          %td
+            -#1st column around button
+          %td
+            %table.button.large-button.radius
+              %tr
+                %td
+                  %a{:href => token_authenticate_url(@user.generate_authentication_token, reminder: @reminder.try(:reminder_token))} Continue
+          %td
+            -#3rd column around button
+
+- if @reminder
+  = image_tag track_reminder_url(token: @reminder.reminder_token, format: 'png'), alt: '1x1'

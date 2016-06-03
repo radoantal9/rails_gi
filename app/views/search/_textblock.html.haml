@@ -1,0 +1,19 @@
+%td
+  = result.searchable.class.name
+%td
+  = link_to "#{url_for(result.searchable)}", url_for(result.searchable)
+
+%td
+  %ul.inline.search
+    - if search_t([result.searchable.private_title], @query) 
+      %li
+        %dt
+          Private Title
+        %dd
+          = highlight_excerpt result.searchable.private_title, @query
+    - if search_t([result.searchable.raw_content], @query) 
+      %li
+        %dt
+          Raw content
+        %dd
+          = highlight_excerpt result.searchable.raw_content, @query

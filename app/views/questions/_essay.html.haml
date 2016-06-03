@@ -1,0 +1,28 @@
+- is_exist = current_user.question_responses.by_question(@question).exists?
+- essay_from_bd = current_user.question_responses.by_question(@question).last.given_answer["answer"] if is_exist
+- essay_from_bd ||= ""
+
+- if is_exist
+  - remaining_words =  @question.xmlnode.xpath('//question/options').first['min_words'].to_i - essay_from_bd.scan(/[\w-]+/).size
+  - if remaining_words < 0 
+    - remaining_words = 0
+- else
+  - remaining_words = @question.xmlnode.xpath('//question/options').first['min_words'].to_i
+
+.essay.well{"data-id-question" => @question.id}
+  %fieldset
+    %legend.essay_title
+      = render_statement @question
+    .essay-box
+      %textarea.essay_text{name: 'essay_text', rows: 5,
+                           "data-min-words" => @question.xmlnode.xpath('//question/options').first['min_words'],
+                           "data-min-words-disable" => current_user.org && current_user.org.disable_min_words_essay?}
+        = essay_from_bd
+
+    %br
+    %a.btn.submit
+      Save
+
+    %span.count_words.label.label-info
+      - if remaining_words > 0
+        At least #{remaining_words} more word(s).

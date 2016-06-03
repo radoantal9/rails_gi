@@ -1,0 +1,14 @@
+%h2 New Signup/Registration
+
+= form_tag(omniauth_student_path) do |f|
+  %div.form-group
+    = label_tag :course_code, "Course code, assigned by your institution"
+    = text_field_tag :course_code, params[:course_code], :placeholder => "Required for enrollment", class: "form-control"
+
+  %div
+    = submit_tag "Enroll", :class => 'btn btn-primary btn-large'
+
+= render "devise/shared/links"
+
+-#%pre
+  = session

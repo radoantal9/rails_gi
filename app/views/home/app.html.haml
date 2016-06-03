@@ -1,0 +1,14 @@
+= content_for :head do
+  = javascript_include_tag 'application_paperjuice'
+
+:javascript
+  $(function() {
+    options = { current_user: #{current_user.to_json(methods: [:org, :user_detail]).html_safe} };
+    PaperjuiceApp.start(options);
+  });
+
+#header-region
+
+#main-region
+
+#footer-region

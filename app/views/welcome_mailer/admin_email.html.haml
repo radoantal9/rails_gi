@@ -1,0 +1,16 @@
+.email-header
+  Welcome admin,
+  = @user.name
+%p
+  You have successfully signed up with Get Inclusive
+
+- if @org_email
+  %p
+    = raw @org_email.email_message
+
+%p
+  To login to the site, just follow this link: 
+  %a{href: @url}= @url
+
+%p
+  Thanks for joining and have a great day!

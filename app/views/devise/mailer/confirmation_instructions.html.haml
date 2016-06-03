@@ -1,0 +1,13 @@
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            %h2 Welcome #{@email}!
+
+            %div You can confirm your account email through the link below:
+
+            %div
+              = link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token)

@@ -1,0 +1,36 @@
+= define_grid(@question_responses,  hide_submit_button: true, hide_reset_button: true ) do |g|
+  - g.column name: 'QuestionID', attribute: 'question_id', detach_with_id: :question_id_filter do |uc|
+    - if can? :see_response_user, uc
+      - uc.question_id
+
+  - g.column name: 'Question Title', attribute: 'title', detach_with_id: :title_filter do |uc|
+    - link_to_if(uc.question, uc.title, uc.question)
+
+  - g.column name: 'UserID', attribute: 'user_id', detach_with_id: :user_id_filter do |uc|
+    - if can? :see_response_user, uc
+      - if uc.question.question_privacy_cd == Question::QUESTION_PRIVACY[:none]
+        - uc.user.id
+      - else
+        - "Anon"
+    - else
+      - 'hidden'
+
+  - g.column name: 'Org', model:'Org', attribute:'name', detach_with_id: :org_filter, custom_filter: :auto, allow_multiple_selection: true do |uc|
+    - if uc.user.org.name
+      - link_to(uc.user.org.name, org_path(uc.user.org.id))
+    - else
+      - uc.user.org.name
+
+  - g.column name: 'Given asnwer' do |uc|
+    - if can? :see_response_content, uc
+      -#- uc.given_answer.inspect.gsub('_', ' ').truncate(140)
+      - if uc.question.question_privacy_cd != Question::QUESTION_PRIVACY[:confidential_private]
+        - ans = uc.given_answer["answer"]
+        - if ans.kind_of?(Array)
+          - ans.split("").join(";")
+        - else
+          - ans
+      - else
+        - "Private"
+    - else
+      - "Number of words in answer: #{(uc.given_answer["answer"]||'').split.size}"

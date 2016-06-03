@@ -1,0 +1,3 @@
+- resource.content_page_elements.each do |pos|
+  = render partial: "content_pages/#{pos.element.class.name.underscore}", locals: { element: pos.element }
+  %hr

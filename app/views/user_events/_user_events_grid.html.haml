@@ -1,0 +1,17 @@
+= define_grid(@user_events_grid, show_filters: :always) do |g|
+  - g.column name: 'Id', attribute: 'id'
+
+  - g.column name: 'User', attribute: 'email', model: User, html: { class: 'email' } do |obj|
+    - obj.user.try :email
+
+  - g.column name: 'email', attribute: 'email'
+
+  - g.column name: 'Course', attribute: 'name', model: Course do |obj|
+    - obj.course.try :name
+
+  - g.column name: 'learning module id', attribute: 'learning_module_id'
+  - g.column name: 'lesson id', attribute: 'lesson_id'
+  - g.column name: 'content page id', attribute: 'content_page_id'
+  - g.column name: 'event_time', attribute: 'event_time'
+  - g.column name: 'event_type', attribute: 'event_type'
+  - g.column name: 'event_data', attribute: 'event_data', filter: false

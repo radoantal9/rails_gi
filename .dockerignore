@@ -1,0 +1,10 @@
+.git
+log
+vendor/bundle
+public/
+_misc/
+tmp/
+uploads/
+config/env_vars/env_config_prod.rb
+coverage/
+*.png

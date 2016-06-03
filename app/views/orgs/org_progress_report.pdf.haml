@@ -1,0 +1,130 @@
+<!-- progress_report.pdf/?ignore_course=11&footer=please%20note%20this%20is%20footer -->
+= javascript_include_tag "https://www.google.com/jsapi"
+= wicked_pdf_javascript_include_tag "chartkick"
+
+:scss
+  .test-bgf {
+    background-color: pink;
+    border-style: solid;
+    border-width: thin;}
+  .course-name {
+    background-color: LightGray;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  .completed-banner-number, .total-participants-banner-number{
+    font-size: 3em;
+    font-weight: bold;
+    
+  }
+  .panel-heading {
+    font-size: 1.1em;
+  }
+  .panel-figure {
+    font-size: 2em;
+    font-weight: bold;
+    
+  }
+
+
+
+.container
+  .row
+    .col-xs-12
+      .text-right.text-muted
+        Report generated:
+        = Time.zone.now.strftime("%Y-%m-%d %l:%M %p %Z")
+      %h1
+        = @org.name
+        Progress Report
+        %p.lead
+          This report shows the snapshot of your current progress and change over the trailing 30 day period across all the course subscriptions for your participants.
+      %p
+
+
+  .row.test-bg{ :style => "height: 190px;" }
+    .col-xs-6
+      Overall Compliance Progress
+      = pie_chart @completion_data, height: "180px", library: {     pieHole: 0.3,
+                                                   fontName: 'Arial',
+                                                   fontSize: 14,
+                                                   width: 400,
+                                                   height: 180,
+                                                   legend: {position: 'right', textStyle: {color: 'black', fontSize: 14}},
+                                                   chartArea: {width: '100%', height: '95%'},
+                                                   colors: ['silver', '#2dcb73', '#FFB45E','#FF8E0B']}
+    .col-xs-6
+      .panel.panel-default
+        .panel-heading.text-center
+          Participant Summary
+
+        %ul.list-group
+          %li.list-group-item.text-center
+            %table.table
+              %tr
+                %td
+                  .completed-banner-number.brandcolor
+                    = number_with_delimiter(@done, delimiter: ',')
+                  = "Completed (#{'%.0f' % (@done.to_f*100/@total).to_f}%)"
+                  %br
+                    Past 30 day completions:
+                    - tot_30_day_completion = 0
+                    %span.brandcolor
+                      = @past_30_day_completions.map{|course_id, count| tot_30_day_completion+=count}[-1]
+                %td
+                  .total-participants-banner-number
+                    = number_with_delimiter(@total, delimiter: ',')
+                  Expected Total
+                  
+                  
+                  
+
+
+  .row
+    .col-xs-12
+      - @completions_by_date_for_courses.sort.map do |course_id, data|
+        .row
+          .col-xs-12.test-bg
+            .course-name{ :style => "font-size: 1.5em; margin-top: 5px;" }
+              = Course.find_by_id(course_id).title
+        .row
+          .col-xs-4.test-bg
+            .panel-heading Progress since launch
+            - sum=0
+            - count_accum = data.map{|date, counts| [date, (sum += counts.to_i)]}
+            - max = data.map{|date, counts| [date, @total_by_course[course_id]]}            
+            = area_chart [{name: "accum", data: count_accum}, {name: "max", data: max} ], 
+              min: 0,
+              max: @total_by_course[course_id],
+              height: "120px",
+              colors: ['#009240', 'LightGray'], 
+              library: { width: 250, 
+                height:130, 
+                pointSize: 0, 
+                backgroundColor: 'white', 
+                hAxis: {textStyle: {fontSize: 10}}, 
+                vAxis: {gridlines: {count: 0}}, 
+                chartArea: {backgroundColor: 'white', 
+                  top: 0, 
+                  width: '85%', 
+                  height: 80}  }
+          .col-xs-3.test-bg.text-center
+            .panel-heading Completions to-date
+            .panel-figure.brandcolor
+              = count_accum[-1][1]
+            = number_to_percentage(count_accum[-1][1]*100.0/@total_by_course[course_id].to_f,precision: 0) 
+            
+          .col-xs-3.test-bg.text-center
+            .panel-heading Completions Past 30 day
+            .panel-figure.brandcolor
+              = @past_30_day_completions[course_id]
+            = number_to_percentage(@past_30_day_completions[course_id]*100.0/@total_by_course[course_id],precision: 0) 
+              
+          .col-xs-2.test-bg.text-center
+            .panel-heading Expected Total
+            .panel-figure
+              = number_with_delimiter(@total_by_course[course_id])
+  - if params[:footer]
+    .row
+      .col-xs-12.text-muted
+        = params[:footer]

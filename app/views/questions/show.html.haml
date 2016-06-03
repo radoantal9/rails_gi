@@ -1,0 +1,32 @@
+%p#notice= notice
+%div{:style => "{float:left}"}
+  - if @question.retired
+    %span.label.label-important retired
+  - else
+    %span.label.label-success Not retired
+%div{:style => "{width:100%;}"}
+  %h3
+    %b ID:
+    = @question.id
+    \- Type: #{@question.question_type}
+%p
+  %b Title (internal only):
+  = @question.title
+%p
+  %b Name:
+  = @question.name
+%b
+  Exists in #{pluralize(@question.quizzes.count, "Quiz")}:
+%ol
+  - @question.quizzes.each do |z|
+    %li= link_to z.label, z
+%p
+  %b Sample:
+  - if QuestionHelper.partial_name(@question)
+    = render QuestionHelper.partial_name(@question), :@question => @question
+  - else
+    Can't render #{@question.question_type}
+= link_to 'Edit', edit_question_path(@question)
+|
+\#{link_to 'Test', test_question_path(@question)} |
+\#{link_to 'Back', questions_path}

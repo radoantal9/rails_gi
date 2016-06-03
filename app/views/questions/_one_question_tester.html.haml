@@ -1,0 +1,3 @@
+%form{"data-url" => grade_question_path(@question)}
+  %input{:name => "question_id", :type => "hidden", :value => @question.id}/
+  = render QuestionHelper.partial_name(@question), :@question => @question

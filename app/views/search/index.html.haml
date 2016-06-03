@@ -1,0 +1,25 @@
+%h3 
+  Search for 
+  %span.label.label-info{style:"font-size: 20px;line-height: 25px;"}
+    = @query
+
+
+=# paginate @results, :theme => 'twitter-bootstrap-3'
+
+%table.table.table-striped
+  %tr
+    %th{:width=>"10%"} Result type
+    %th{:width=>"20%"} Link
+    %th Description 
+  - if @results
+    - @results.each do |result|
+      %tr
+        - if ['user', 'contentpage', 'course', 'learningmodule', 'lesson', 'question', 'invitation', 'quiz', 'textblock', 'user'].include? result.searchable.class.name.downcase
+          = render result.searchable.class.name.downcase, :result => result
+        - else
+          %td
+            = result.searchable.class.name
+          %td
+            Don't know this type
+
+=# paginate @results, :theme => 'twitter-bootstrap-3'

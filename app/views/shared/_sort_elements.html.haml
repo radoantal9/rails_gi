@@ -1,0 +1,9 @@
+- unless elements.empty?
+  %br
+  %b Sort elements
+
+  .elements_sortable{"data-update-url" => sort_update_path}
+    - elements.each do |obj|
+      = content_tag_for :div, obj, 'data-id' => obj.id,  :class => "well handle" do
+        = link_to 'Edit', polymorphic_path(obj, :action => :edit)
+        ID(#{obj.id}) #{obj.class} #{obj.name}

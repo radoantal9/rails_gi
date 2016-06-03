@@ -1,0 +1,18 @@
+%h3 Sorting questions inside quiz
+.alert
+  %button.close{"data-dismiss" => "alert", :type => "button"} &times;
+  %strong Note:
+  Any sorting here will affect all learning paths that use this quiz.
+  You have the option of creating a new quiz with a different sort order too.
+  %br
+    %strong Refresh to double check all changes are saved on the server
+.form-actions
+  %a.btn.btn-success.btn-large{:href => quiz_url} Done - show quiz
+#questions{"data-update-url" => quiz_question_sort_update_url}
+  %b
+    Questions (#{@quiz.questions.count}):
+  - @quiz.questions.order("position").each do |q|
+    = content_tag_for :div, q, :class => "well handle" do
+      %b
+        ID(#{q.id})
+      \- #{q.title} - #{q.xmlnode.xpath("//question/statement/@text").to_s}

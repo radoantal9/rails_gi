@@ -1,0 +1,7 @@
+= define_grid(@text_blocks) do |g|
+  - g.column name: 'Private title', attribute: 'private_title', detach_with_id: :title_filter do |uc|
+    - uc.private_title
+  - g.column name: 'Updated at', attribute: 'updated_at', detach_with_id: :updated_at_filter do |uc|
+    - uc.updated_at.to_s(:long)
+  - g.column name: 'Associated content pages' do |uc|
+    - raw uc.content_pages.map{|elem| elem.name}.join(", ")

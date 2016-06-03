@@ -1,0 +1,8 @@
+- if choices && choices['comment'].true?
+  .comment
+    %label
+      = choices['comment-name']
+      %textarea.form-control.comment_input{:name => "comment[#{@question.id}][_comment]", 'data-comment-min-words' => choices['comment-min-words']}
+      - if choices['comment-min-words'] && choices['comment-min-words'].to_i > 0
+        %span.count_words.label.label-info
+          at least #{choices['comment-min-words']} more word(s).

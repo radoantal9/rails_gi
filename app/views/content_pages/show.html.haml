@@ -1,0 +1,32 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @content_page.name
+%p
+  %b Title:
+  = @content_page.title
+%p
+  %b Associated lessons:
+  = raw @content_page.lessons.map{|elem| link_to(elem.name, lesson_path(elem))}.join(", ")
+
+- @content_page.content_page_elements.each do |pos|
+  %b
+    #{pos.element.class}
+    ID(#{pos.element.id}):
+  = link_to 'Edit', polymorphic_path(pos.element, :action => :edit)
+
+  = render partial: "content_pages/#{pos.element.class.name.underscore}", locals: { element: pos.element }
+
+  %hr
+
+
+-#- if @next_content_page
+  = link_to 'Next', page_lesson_path(@lesson, @page_num + 1)
+
+
+%br
+
+= link_to 'Edit', edit_content_page_path(@content_page)
+\|
+= link_to 'Back', content_pages_path

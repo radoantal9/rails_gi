@@ -1,0 +1,22 @@
+= define_grid(@content_pages, show_filters: :always) do |g|
+  - g.column name: 'Page', attribute: 'page_num', model: 'CoursePage', detach_with_id: :page_filter do |uc|
+    - raw uc.course_pages.map{|page| link_to(page.page_num, page_course_path(page.course, page.page_num))}.join(", ")
+
+  - g.column name: 'Name', attribute: 'name', detach_with_id: :name_filter do |uc|
+    - if uc.name 
+      - link_to(uc.name,uc )
+    - else
+      - uc.name
+  - g.column name: 'Title', attribute: 'title', detach_with_id: :title_filter
+  - g.column name: 'Associated lessons' do |uc|
+    - raw uc.lessons.map{|elem| link_to(elem.name, lesson_path(elem))}.join(", ")
+  - g.column name: 'Updated at', attribute: 'updated_at', detach_with_id: :updated_at_filter do |uc|
+    - uc.updated_at.to_s(:long)
+  - g.column do |uc|
+    - link_to('Show',uc )
+  - g.column do |uc|
+    - link_to('Edit', edit_content_page_path(uc) )
+  - g.column do |uc|
+    - link_to 'Destroy', uc, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+

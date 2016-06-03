@@ -1,0 +1,10 @@
+-#= render 'shared/ace_editor'
+
+- url = @org_resource.new_record? ? org_resources_path(@org) : org_resource_path(@org, @org_resource)
+
+= simple_form_for @org_resource, url: url, html: { class: 'form-horizontal', role: 'form' } do |f|
+  = f.association :course,  collection: @org.courses
+  = f.input :org_key, label: "Content Key"
+  = f.input :org_value, label: "Content", input_html: { class: "text_block_redactor" }
+  .text-center
+    = f.button :submit, "Create", class: "btn btn-primary btn-lg"

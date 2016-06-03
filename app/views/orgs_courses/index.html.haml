@@ -1,0 +1,25 @@
+%h3 Course Enrollment for Organizations
+= link_to 'Create a new enrollment for an org', new_orgs_course_path, :class=>"btn btn-primary pull-right"
+%br
+%br
+
+%table.table.table-striped
+  %tr
+    %th Org
+    %th Course
+    %th Enrollment code
+    %th
+    %th
+    %th
+
+  - @orgs_courses.each do |orgs_course|
+    %tr
+      %td= orgs_course.org.name
+      %td= orgs_course.course.title
+      %td= orgs_course.enrollment_code
+      %td= link_to 'Show', orgs_course
+      %td= link_to 'Edit', edit_orgs_course_path(orgs_course)
+      %td= link_to 'Destroy', orgs_course, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+

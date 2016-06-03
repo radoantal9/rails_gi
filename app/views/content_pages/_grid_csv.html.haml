@@ -1,0 +1,5 @@
+= define_grid(@content_pages, show_filters: :always) do |g|
+  - g.column name: 'Name', attribute: 'name', detach_with_id: :name_filter do |uc|
+    - uc.name
+  - g.column name: 'Updated at', attribute: 'updated_at', detach_with_id: :updated_at_filter do |uc|
+    - uc.updated_at.to_s(:long)

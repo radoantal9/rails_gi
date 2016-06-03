@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @learning_module.name
+
+  %b Title:
+  = @learning_module.title
+%p
+  - if @learning_module.text_block 
+    = render_text_block(@learning_module.text_block)
+
+= link_to 'Edit', edit_learning_module_path(@learning_module)
+\|
+= link_to 'Back', learning_modules_path

@@ -1,0 +1,17 @@
+%h3 Listing User Course Enrollments
+= link_to 'New Manual Enrollment', new_users_course_path, :class=>"btn btn-primary pull-right"
+%br
+%br
+
+= grid(@users_courses_grid, show_filters: :always) do |g|
+  - g.column name: 'Course Name', attribute: 'name', model: 'Course', custom_filter: :auto, allow_multiple_selection: true do |uc|
+    - uc.course.title
+  - g.column name: 'User', attribute: 'email', model: 'User' do |uc|
+    - uc.user.email
+  - g.column do |uc|
+    - link_to('Edit', edit_users_course_path(uc) )
+  - g.column do |uc|
+    - link_to 'Destroy', uc, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+
+

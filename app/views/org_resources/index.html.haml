@@ -1,0 +1,30 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Custom Content
+
+%p
+  = link_to 'Create new Custom Content', new_org_resource_path(@org), :class => 'btn btn-primary'
+%h2
+  Existing Custom Content
+
+%table.table
+  %tr
+    %th Level
+    %th Key
+    %th Content
+    %th
+
+  - @org_resources.each do |org_resource|
+    %tr
+      %td
+        - if org_resource.course
+          = link_to org_resource.course.name, org_resource.course
+        - else
+          Org
+      %td= org_resource.org_key
+      %td= raw org_resource.org_value
+      %td
+        = link_to 'Show', org_resource_path(@org, org_resource)
+        = link_to 'Edit', edit_org_resource_path(@org, org_resource)
+        = link_to 'Destroy', org_resource_path(@org, org_resource), :method => :delete, :data => { :confirm => 'Are you sure?' }
+

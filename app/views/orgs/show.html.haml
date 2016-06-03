@@ -1,0 +1,6 @@
+= render 'orgs/show', org: @org
+
+.form-actions.pull-right
+  - if can? :edit, @org
+    = link_to 'Edit', edit_org_path(@org), class: 'btn btn-primary'
+  = link_to 'Back', :back, class: 'btn'

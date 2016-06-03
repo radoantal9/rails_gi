@@ -1,0 +1,122 @@
+%h3 Editing Content Page
+
+= render 'form'
+
+- unless @content_page.content_page_elements.empty?
+  %br
+  %b Sort elements
+
+  .elements_sortable{"data-update-url" => sort_content_page_path}
+    - @content_page.content_page_elements.each do |pos|
+      = content_tag_for :div, pos, 'data-id' => pos.id,  :class => "well handle" do
+        = link_to polymorphic_path(pos.element, :action => :edit) do
+          #{pos.element.class}
+        ID(#{pos.element.id}):
+
+        - if pos.element.is_a? Quiz
+          = pos.element.name.truncate(100)
+        - elsif pos.element.is_a? TextBlock
+          = pos.element.private_title.truncate(100)
+        - elsif pos.element.is_a? Question
+          = pos.element.title.truncate(100)
+
+        %button.close.remove_element{"data-url" => remove_element_content_page_path, :type => "button"} ×
+
+%br
+
+%a.btn.btn-default{"data-toggle" => "modal", :href => "#new_text_block", :role => "button"} New text block
+
+.btn-group.dropup
+  %a.btn.dropdown-toggle{"data-toggle" => ".dropdown-toggle", :href=>"#"}
+    Add existing
+    %span.caret
+  %ul.dropdown-menu
+    %li
+      %a.open_modal_tab(data-modal="#add_existing" data-tab="#tab_text_blocks") Text blocks
+    %li
+      %a.open_modal_tab(data-modal="#add_existing" data-tab="#tab_quizzes") Quizzes
+    %li
+      %a.open_modal_tab(data-modal="#add_existing" data-tab="#tab_ungraded_questions") Ungraded questions
+
+-#%a.btn.open_modal_tab{data-modal="#add_existing" data-tab="#tab_text_blocks") Add text blocks
+-#%a.btn.open_modal_tab(data-modal="#add_existing" data-tab="#tab_quizzes") Add quizzes
+-#%a.btn.open_modal_tab(data-modal="#add_existing" data-tab="#tab_ungraded_questions") Add ungraded questions
+-#%a.btn{"data-toggle" => "modal", :href => "#add_existing", :role => "button"} Add ungraded questions
+
+%br
+%br
+
+= link_to 'Show', @content_page
+\|
+= link_to 'Back', content_pages_path
+
+
+#new_text_block.modal.fade{'data-backdrop' => "false", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      = form_for TextBlock.new do |f|
+        = hidden_field_tag :content_page_id, @content_page.id
+        .modal-header
+          %button.close{"data-dismiss" => "modal", :type => "button"} ×
+          %h3 New text block
+
+        .modal-body
+          .form-group
+            = f.label :private_title
+            = f.text_area :private_title, :rows => 1, :style => 'width:95%;', :class => "form-control"
+          .form-group
+            = f.label :raw_content
+            = input_text_block f
+          .actions
+
+        .modal-footer
+          = f.submit 'Create and append', :class => 'btn btn-primary'
+          %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Close
+
+
+#add_existing.modal.fade{'data-backdrop' => "false", :role => "dialog", :tabindex => "-1"}
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %button.close{"data-dismiss" => "modal", :type => "button"} ×
+        %h3 Add existing
+
+      .modal-body
+        %ul.nav.nav-tabs
+          %li.active
+            %a{"data-toggle" => "tab", :href => "#tab_text_blocks"} Text blocks
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_quizzes"} Quizzes
+          %li
+            %a{"data-toggle" => "tab", :href => "#tab_ungraded_questions"} Ungraded questions
+
+        .tab-content
+          #tab_text_blocks.tab-pane.active
+            = form_tag @content_page, :method => :put, :class => "form" do
+              .form-group
+                = select_tag :text_block_ids, options_from_collection_for_select(TextBlock.for_content_pages.order('id'), 'id', 'form_label'), { :multiple => true, :class => 'select2' }
+
+              .form-actions
+                .pull-right
+                  = submit_tag 'Add text blocks', :class => 'btn btn-primary'
+                  %button.btn.btn-default{"aria-hidden" => "true", "data-dismiss" => "modal"} Close
+
+          #tab_quizzes.tab-pane
+            = form_tag @content_page, :method => :put, :class => "form" do
+              .form-group
+                = select_tag :quiz_ids, options_from_collection_for_select(Quiz.order('id'), 'id', 'form_label'), { :multiple => true, :class => 'select2' }
+
+              .form-actions
+                .pull-right
+                  = submit_tag 'Add quizzes', :class => 'btn btn-primary'
+                  %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Close
+
+          #tab_ungraded_questions.tab-pane
+            = form_tag @content_page, :method => :put, :class => "form" do
+              .form-group
+                = select_tag :ungraded_question_ids, options_from_collection_for_select(Question.ungraded_questions.order('id'), 'id', 'form_label'), { :multiple => true, :class => 'select2' }
+
+              .form-actions
+                .pull-right
+                  = submit_tag 'Add ungraded questions', :class => 'btn btn-primary'
+                  %button.btn{"aria-hidden" => "true", "data-dismiss" => "modal"} Close

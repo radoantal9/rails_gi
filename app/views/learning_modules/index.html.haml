@@ -1,0 +1,26 @@
+%h3 Modules
+= link_to 'New Learning module', new_learning_module_path, :class=>"btn btn-primary pull-right"
+%br
+%br
+
+%table.table.table-striped
+  %tr
+    %th Id
+    %th Name
+    %th Title
+    %th Lessons
+    %th
+    %th
+    %th
+
+  - @learning_modules.each do |learning_module|
+    %tr
+      %td= learning_module.id
+      %td= learning_module.name
+      %td= learning_module.title
+      %td= learning_module.lessons.count
+      %td= link_to 'Show', learning_module
+      %td= link_to 'Edit', edit_learning_module_path(learning_module)
+      %td= link_to 'Destroy', learning_module, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+

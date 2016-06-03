@@ -1,0 +1,58 @@
+%h1
+  Admin Dashboard
+
+.row
+  .col-md-6
+    .panel.panel-default
+      .panel-heading
+        %h3.panel-title Content and Course Related Stuff
+      .panel-body
+        %ul
+          %li
+            %a{:href => "/courses"} Courses
+          %li
+            %a{:href => "/learning_modules"} Modules
+          %li
+            %a{:href => "/lessons"} Lessons
+          %li
+            %a{:href => "/content_pages"} Content Pages
+          %li
+            %a{:href => "/text_blocks"} Text blocks
+          %li
+            %a{:href => "/quizzes"} Quiz
+          %li
+            %a{:href => "/quiz_results"} Quiz Results
+          %li
+            %a{:href => "/questions"} Questions
+          %li
+            %a{:href => "/question_responses"} Question responses
+          %li
+            %a{:href => "/questions/privacy"} Org-specific privacy of questions
+          %li
+            %a{:href => "/reports"} Submission reporting
+          %li
+            %a{:href => "/reports/survey"} Survey reports
+          %li
+            %a{:href => "/app#word_definitions"} Word definitions
+  .col-md-6
+    .panel.panel-default
+      .panel-heading
+        %h3.panel-title User/Org Admin Magic
+      .panel-body
+        %ul
+          %li
+            %a{:href => "/notifications"} Notifications
+          %li
+            %a{:href => "/orgs"} Manage Orgs
+          %li
+            %a{:href => "/orgs/anonymize"} Anonymize org users
+          %li
+            %a{:href => "/orgs_courses"} Course-Org Subscriptions
+          %li
+            %a{:href => "/users_courses"} Student Enrollments
+          %li
+            %a{:href => "/user_events"} User Activities
+          %li
+            %a{:href => "/list_diff"} Compare email lists
+          %li
+            %a{:href => "/mail_view", :target => "_blank"} Email previews

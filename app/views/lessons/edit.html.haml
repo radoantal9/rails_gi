@@ -1,0 +1,9 @@
+%h3 Editing lesson
+.form-actions
+  = link_to 'Back', lessons_path, class: "btn btn-primary"
+  = link_to 'Show', @lesson, :class => "btn btn-info"
+  = link_to "Change sort order ", sort_lesson_path, :class => "btn btn-info"
+
+%br
+
+= render 'form'

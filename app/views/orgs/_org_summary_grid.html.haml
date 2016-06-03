@@ -1,0 +1,31 @@
+= define_grid(@org_summary_grid, show_filters: :always) do |g|
+
+  - g.column name: 'Email', in_html: true, in_csv: false, attribute: 'email' do |r|
+    - if r.registered == 'Yes'
+      - link_to r.email, org_user_path(r.org_id, r.id)
+    - else
+      - r.email
+
+  - g.column name: 'Email', in_html: false, in_csv: true, attribute: 'email'
+
+  - g.column name: 'First name', attribute: 'first_name'
+  - g.column name: 'Last name', attribute: 'last_name'
+  - g.column name: 'Registered?', attribute: 'registered', custom_filter: :auto
+
+  - g.column name: '% completion', attribute: 'percent_completed', filter_type: :range do |r|
+    - r.percent_completed.to_i.round(0)
+
+  - if can?(:student_journal, @org)
+    - g.column name: 'Journal', in_csv: false do |user|
+      - if user.registered == 'Yes'
+        - link_to student_journal_path(user), 'title' => 'Journal', 'target' => '_blank' do
+          %i.fa.fa-file-pdf-o
+
+  - g.column name: 'Cert', in_csv: false do |user|
+    - if user.registered == 'Yes'
+      - link_to student_certificate_path(user), 'title' => 'Certificate', 'target' => '_blank' do
+        %i.fa.fa-certificate
+
+  - g.column name: 'Notes', attribute: 'status'
+
+  - g.column name: 'Days Since Last Activity',attribute: 'days_since_last_activity'

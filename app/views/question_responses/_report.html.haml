@@ -1,0 +1,67 @@
+-#:coffee
+-#  $ ->
+-#    $('.show_response_details').click ->
+-#      pp 'show_response_details'
+-#
+
+= define_grid(@question_responses,  hide_submit_button: true, hide_reset_button: true ) do |g|
+  - g.column name: 'Question type' do |uc|
+    - uc.question_type.to_s
+
+  - g.column name: 'Title question', attribute: 'title', detach_with_id: :title_filter, html: { class: 'title' } do |uc|
+    - title = uc.title || uc.question.try(:title)
+    - link_to_if(uc.question, title, uc.question)
+
+  - g.column name: 'Statement', html: { class: 'statement' } do |uc|
+    - uc.statement && uc.statement.truncate(140)
+
+  - g.column name: 'Email' do |uc|
+    - if can? :see_response_user, uc
+      - uc.user.email
+    - else
+      - 'hidden'
+
+  - g.column name: 'Org', model:'Org', attribute:'name', detach_with_id: :org_filter, custom_filter: :auto, allow_multiple_selection: true do |uc|
+    - if uc.user.org
+      - link_to(uc.user.org.name, org_path(uc.user.org))
+
+  - g.column name: 'Submission', html: { class: 'submission' } do |uc|
+    - uc.answer_for_report.truncate(140)
+
+  - g.column   do |uc|
+    - content_tag :div do
+      - dlg_id = "response_details#{uc.id}"
+      = link_to 'Show', "##{dlg_id}", role: 'button', class: 'btn btn-default', 'data-toggle' => 'modal'
+      %div.modal{:id => dlg_id, :role => "dialog", :tabindex => "-1"}
+        .modal-dialog
+          .modal-content
+            .modal-header
+              %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+              %h3 QuestionResponse #{uc.id}
+            .modal-body
+              %h4 Student
+              - if can? :see_response_user, uc
+                = uc.user.try(:full_name)
+              - else
+                = 'hidden'
+
+              %h4 Statement
+              = uc.statement
+
+              %h4 Submission
+              - answer = uc.get_given_answer
+              - if answer.is_a? Hash
+                %table.table-condensed
+                  %tr
+                    %th Key
+                    %th Value
+                  - answer.each do |k, v|
+                    %tr
+                      %td.key= k
+                      %td.value= v
+              - else
+                = answer
+
+            .modal-footer
+              %button.btn.btn-default{"aria-hidden" => "true", "data-dismiss" => "modal"} Close
+              -#%button.btn.btn-primary Save changes

@@ -1,0 +1,14 @@
+-if current_user.has_role?(:user_manager)
+  = render :partial => "dashboard_user_manager"
+-if current_user.has_role?(:content_manager)
+  = render :partial => "dashboard_content_manager"
+-if current_user.has_role?(:student)
+  = render :partial => "dashboard_student"
+-if current_user.has_role?(:admin)
+  = render :partial => "dashboard_admin"
+  %h1
+    Recent Activity
+  - if @user_events
+    = render partial: 'users/activity_stream', locals: { user_events: @user_events }
+
+

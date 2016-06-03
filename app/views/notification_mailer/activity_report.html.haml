@@ -1,0 +1,45 @@
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+
+            .email-header
+              Activity report for #{@org.name}
+            %p
+              %table(border="1" cellpadding="5" margin="2")
+                %thead
+                  %tr
+                    %th Course
+                    %th Number of participants
+                    %th 100%(n)
+                - @org.courses.each do |course|
+                  - completion = course.completion_groups(@org)
+
+                  %tr
+                    %td= course.title
+                    %td{style: "text-align: center;"}= course.users.by_org(@org).count
+                    %td{style: "text-align: center;"}= completion[5].try :count
+
+            %div
+              %p Number of currently enrolled participants: #{@org.students.count}
+              - header = true
+              - @org.courses.each do |course|
+                -#- new_users = course.users_courses.joins(:user).where('(users.created_at > ?) AND (users.created_at <= ?) AND org_id=?', @since_time, @time_now, @org.id)
+                - new_users = User.joins(:courses, :org).where("(course_id = ?) AND (org_id = ?) AND (users_courses.created_at > ?) AND (users_courses.created_at <= ?)", course.id, @org.id, @since_time, @time_now)
+                - unless new_users.empty?
+                  - if header
+                    %p New enrollments since (#{ @since_time })
+                    - header = false
+
+                  %h3 #{course.title}
+                  %ol
+                    - new_users.each do |user|
+                      %li= user.full_name
+              %p
+                = link_to 'Edit notification settings', notifications_url
+          %td.expander
+
+
+

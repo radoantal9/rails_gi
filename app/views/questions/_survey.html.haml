@@ -1,0 +1,65 @@
+- if local_assigns[:standalone_survey]
+  - prev = local_assigns[:standalone_survey].question_response.present?
+- else
+  - prev = current_user ? current_user.question_responses.by_question(@question).exists? : false
+- @counter = 0
+
+.survey{'data-id-question' => @question.id, 'data-survey-token' => local_assigns[:standalone_survey].try(:survey_token)}
+  %fieldset.survey-content
+    - if @question.xmlnode.xpath('//question/group').count == 0 or params[:action] == 'all'
+      %legend= render_statement @question
+      - @block = @question.xmlnode.xpath('//question/item')
+      - @block = @question.xmlnode.xpath('//item') if params[:action] == 'all'
+      = render 'questions/survey_item'
+      %div.form-actions
+        - if prev
+          %a.btn.btn-warning.re-edit.survey-re-edit Re-Edit
+        %a.btn.btn-primary.btn-block.submit.survey-submit Submit
+
+    - else
+      - count = @question.xmlnode.xpath('//question/group').count
+      - @question.xmlnode.xpath('//question/group').each_with_index do |group, index|
+        - @block = group.children
+        - options = {'data-group-id' => @question.id, 'data-group-index' => index}
+        - options[:style] = 'display: none;' unless index == 0
+        %div.group{options}
+          - if index == 0
+            %legend= render_statement @question
+          = render 'questions/survey_item'
+          - if index == count - 1
+            %div.form-actions
+              %a.btn.btn-primary.btn-lg.submit.survey-submit Submit
+          %br
+
+          - options = {class: 'btn btn-default'}
+          - if index == 0
+            - options[:class] += " disabled"
+          - else
+            - options[:'data-group-index'] = index - 1
+            - options[:'data-group-id'] = @question.id
+          = link_to "Prev", '#', options
+
+          = "Page #{index+1} of #{count}"
+
+          - options = {class: 'btn btn-default'}
+          - if index == count - 1
+            - options[:class] += " disabled"
+          - else
+            - options[:'data-group-index'] = index + 1
+            - options[:'data-group-id'] = @question.id
+          = link_to "Next", '#', options
+
+  
+
+  - uniq_name = QuestionHelper.uniq_name_creator(@question.title)
+  - if prev
+    - if local_assigns[:standalone_survey]
+      - data = local_assigns[:standalone_survey].question_response.given_answer["answer"]
+    - else
+      - data = current_user.question_responses.by_question(@question).last.given_answer["answer"]
+
+    - if data
+      %div{:id => uniq_name + "_prev", "data-role" => "prev-data", :style => 'display: none'}
+        = data.to_json
+
+%span#survey_submitted{'style' => 'display: none'}= t('survey.submitted')

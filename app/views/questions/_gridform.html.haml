@@ -1,0 +1,55 @@
+- prev = current_user.question_responses.by_question(@question).exists?
+- uniq_name = QuestionHelper.uniq_name_creator(@question.title)
+
+.gridform{"data-id-question" => @question.id, "data-name" => uniq_name, "data-question-type" => @question.question_type}
+  .review{"style" => "display: none"}
+    %table.table.table-striped.table-bordered.table-condensed
+      %tr
+        %th Title
+        - @question.xmlnode.xpath('//question/items').children.each do |item|
+          - next if item.attributes == {}
+          %th= item["text"]
+
+  %fieldset
+    %legend= render_statement @question
+    %div{:id => uniq_name + "_answers"}
+
+    %div.form-actions
+      %a.btn.btn-info.submit.btn-block{"data-role" => "button", "data-name" => uniq_name} Submit
+
+      %a.btn.edit.btn-warning{"data-role" => "button", "style" => "display: none", "data-name" => uniq_name} Edit
+
+  %textarea{:id => uniq_name + "_items", :style => "display: none", "data-id-question" => @question.id}
+    %label{for: 'name'}=@question.xmlnode.xpath('//question/statement').first['label'] || 'Title'
+    %input{:"data-role" => 'name', :id => 'name', :name => 'name', :type => 'text', :value => '', :class => "form-control"}
+      %div.attributes{:style => 'display: none'}
+        - @question.xmlnode.xpath('//question/items').children.each do |item|
+          - next if item.attributes == {}
+          - id = QuestionHelper.uniq_name_creator item["text"]
+          - case item["type"]
+          - when "checkbox"
+            .checkbox
+              %label.checkbox{:for => id}
+                %input{:id => id, :type => 'checkbox',   :name => id, :value => 1}
+                = item["text"]
+              %input{:type => 'hidden', :name => id, :value => 0}
+          - when 'dropdown'
+            %label{:for => id}
+              != item['text']
+              %select{:id => id, :name => id, :class => "form-control select-fillin"}
+                %option{:value => ''} Select One
+                - item.children.each do |option|
+                  - next if option.attributes.blank?
+                  %option{:value => option['value'], 'data-fillin' => option['fillin'].true?.to_s}= option['value']
+          - else
+            .form-group
+              %label{:for => id}= item["text"]
+              %input.form-control{:id => id, :type => item['type'], :name => id}
+        = link_to raw("<span class='glyphicon glyphicon-trash' style='color:red'> Delete Answer</span>"), '#', "data-deleter" => true
+
+
+  - if prev
+    - data = current_user.question_responses.by_question(@question).last.given_answer["answer"]
+    - if data
+      %div{:id => uniq_name + "_prev", "data-role" => "prev-gridform-data", :style => 'display: none'}
+        = data.to_json

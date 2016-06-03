@@ -1,0 +1,30 @@
+%h3 Organizations
+
+- if can? :create, Org
+  = link_to 'Create New Org', new_org_path, :class => "btn btn-primary pull-right"
+
+%br
+%br
+
+%table.table.table-striped
+  %tr
+    %th Id
+    %th Name
+    %th Active?
+    %th Courses
+    %th Participants
+    %th
+    %th
+    %th
+  - @orgs.order('is_active DESC, name ASC').each do |org|
+    %tr
+      %td= org.id
+      %td= org.name
+      %td= org.is_active
+      %td= org.orgs_courses.count
+      %td= org.users.count
+      %td= link_to_if can?(:show, org),  'Show', org, :class => "btn btn-primary btn-sm"
+      %td= link_to_if can?(:edit, org), 'Edit', edit_org_path(org), :class => "btn btn-default btn-sm"
+      %td
+        - if !org.is_active
+          = link_to_if can?(:destroy, org), 'Delete', org, method: :delete, data: { confirm: 'Are you sure?' }, :class => "btn btn-danger btn-sm"

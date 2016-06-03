@@ -1,0 +1,17 @@
+%p
+  %b User:
+  = @question_response.user_id
+
+%p
+  %b Title:
+  = @question_response.title
+
+%b Given answer:
+%pre
+  = @question_response.given_answer.as_json
+
+%b Content:
+%pre
+  = Nokogiri::XML(@question_response.content).to_xhtml(:indent => 2)
+
+= link_to 'Back', question_responses_path

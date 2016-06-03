@@ -1,0 +1,16 @@
+= simple_form_for @orgs_course, html: { class: 'form-small form-horizontal', role: 'form' } do |f|
+  - if @orgs_course.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@orgs_course.errors.count, "error")} prohibited this orgs_course from being saved:"
+      %ul
+        - @orgs_course.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.association :org
+  .field
+    = f.association :course
+  .field
+    = f.input :enrollment_code
+  .actions
+    = f.submit 'Save', class: 'btn btn-primary'

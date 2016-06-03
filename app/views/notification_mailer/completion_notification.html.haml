@@ -1,0 +1,21 @@
+%table.row
+  %tr
+    %td
+      %table.twelve.columns
+        %tr
+          %td.text-pad
+            .email-header
+              Course completion notification for #{@org.name}
+
+            %p Participants who have completed courses since (#{ @since_time })
+
+            - @completed_courses.each do |course, users|
+              %h3= course.title
+
+              %ol
+                - users.each do |user|
+                  %li= user.full_name
+
+            %p
+              = link_to 'Edit notification settings', notifications_url
+          %td.expander

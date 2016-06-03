@@ -1,0 +1,33 @@
+= define_grid(@users_grid, show_filters: :always, hide_submit_button: true, hide_reset_button: true) do |g|
+  - g.column name: 'First name', attribute: 'first_name', detach_with_id: :first_name_filter do |user|
+    - user.first_name
+
+  - g.column name: 'Last name', attribute: 'last_name', detach_with_id: :last_name_filter do |user|
+    - user.last_name
+
+  - g.column name: 'Email', attribute: 'email', detach_with_id: :email_filter, html: { class: 'email' } do |user|
+    - user.email
+
+  - g.column name: 'Date signed up', attribute: 'created_at', filter: false, html: { class: 'date' } do |user|
+    - as_date user.created_at
+  - g.column name: 'Last login', attribute: 'current_sign_in_at', filter: false, html: { class: 'date' } do |user|
+    - as_date user.current_sign_in_at
+
+  - g.column name: '% completion', html: { class: 'completion' }  do |user|
+    - @course.user_completion(user)
+
+  - g.column name: 'Lesson score achieved', html: { class: 'score' } do |user|
+    - user.quiz_results.where(quiz_id: @course.course_quizzes).inject(0.0) do |score, res|
+      - score += res.score if res.score
+      - score
+
+  - g.column name: 'Course started', html: { class: 'date' }  do |user|
+    - as_date user.user_events.by_course(@course).by_event_type('course_begin').first.try(:event_time)
+
+  - g.column name: 'Last activity', html: { class: 'activity' } do |user|
+    - page = @course.get_page(@course.current_page(user)).try :page
+    - page.try :name
+
+  - g.column name: 'Next activity', html: { class: 'activity' } do |user|
+    - next_page = @course.get_page(@course.current_page(user) + 1).try :page
+    - next_page.try :name

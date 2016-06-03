@@ -1,0 +1,19 @@
+%h1
+  Please confirm your email address
+%title
+  Before you continue, please confirm that this is you
+%p.text-center
+  %mark.text-center{style: "font-size:2em;"}
+    = @reminder.user.email
+%p
+  %title
+    = @reminder.orgs_course.org.name
+%title
+  Course:
+  = @reminder.orgs_course.course.name
+%p
+
+= link_to 'Yes that is me - Continue', token_authenticate_url(@reminder.user.generate_authentication_token, reminder: @reminder.reminder_token, confirm: 'yes', protocol: ENV['PROTOCOL']), method: :post, class: 'btn btn-lg btn-block btn-success'
+%p
+
+= link_to 'That is not me, let me re-login', logout_url(protocol: ENV['PROTOCOL']), class: 'btn btn-lg btn-block'

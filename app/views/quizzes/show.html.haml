@@ -1,0 +1,29 @@
+%p#notice= notice
+.form-actions
+  = link_to 'Back', quizzes_path, class: "btn btn-primary"
+  = link_to 'Edit', edit_quiz_path(@quiz), class: "btn btn-info"
+  = link_to "Change sort order ", quiz_question_sort_path, :class => "btn btn-info"
+  //%button#grade_quiz.btn.btn-primary.btn-success Have it graded
+%h3
+  %b Quiz ID:
+  = @quiz.id
+%p
+  %b Name:
+  = @quiz.name
+%p
+  %b Title:
+  = @quiz.title
+%p
+  %b Instructions:
+  = @quiz.instructions
+%p
+  %b
+    Questions (#{@quiz.questions.count}):
+  %p
+    = form_tag "/quizzes/grade/#{@quiz.id}", class: "grade", id: "quiz_form", :"data-ajax" => "false" do
+      %input{:name => "quiz_id", :type => "hidden", :value => @quiz.id}
+      - @quiz.questions.order("position").each_with_index do |q, i|
+        %div{"data-qid" => q.id, "data-q-type" => q.question_type}
+          = render QuestionHelper.partial_name(q), :@question => q, :@number => i + 1
+      %button#grade_quiz.btn.btn-primary.btn-success{"data-ajax" => "false"}
+        Submit Quiz

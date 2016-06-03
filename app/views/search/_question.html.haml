@@ -1,0 +1,53 @@
+%td
+  = result.searchable.class.name
+%td
+  = link_to "#{url_for(result.searchable)}", url_for(result.searchable)
+
+%td
+  %ul.inline.search
+    - if search_t([result.searchable.title], @query) 
+      %li
+        %strong
+          Title
+        %div
+          = highlight_excerpt result.searchable.title, @query
+    - if search_t([result.searchable.question_type], @query) 
+      %li
+        %strong
+          Type
+        %div
+          = highlight_excerpt result.searchable.question_type, @query
+    - if search_t([result.searchable.statement], @query) 
+      %li
+        %strong 
+          Statement:
+        %div.statement
+          = highlight_excerpt result.searchable.statement, @query
+    - if search_t([result.searchable.choice_text, result.searchable.item_text, result.searchable.item_type], @query)
+      %li
+        %strong 
+          Text:
+        %div.statement
+          = highlight_excerpt result.searchable.choice_text, @query
+          = highlight_excerpt result.searchable.item_text, @query
+          = highlight_excerpt result.searchable.item_type, @query
+    - if search_t([result.searchable.choice_correct_text], @query) 
+      %li
+        %strong
+          Correct text:
+        %div.correct_text
+          = highlight_excerpt result.searchable.choice_correct_text, @query
+    - if search_t([result.searchable.choice_incorrect_text], @query) 
+      %li
+        %strong
+          Incorrect text:
+        %div.incorrect_text
+          = highlight_excerpt result.searchable.choice_incorrect_text, @query
+    - if search_t([result.searchable.choice_answer, result.searchable.choice_match, result.searchable.item_option_value], @query)
+      %li
+        %strong
+          Answer
+        %div.answer
+          = highlight_excerpt result.searchable.choice_answer, @query
+          = highlight_excerpt result.searchable.choice_match, @query
+          = highlight_excerpt result.searchable.item_option_value, @query

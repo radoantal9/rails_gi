@@ -1,0 +1,10 @@
+= define_grid(@user_events_grid, show_filters: :always) do |g|
+  - g.column name: 'Course', attribute: 'name', model: Course do |obj|
+    - obj.course.try :title
+
+  - g.column name: 'Module', attribute: 'name', model: LearningModule do |obj|
+    - obj.learning_module.try :title
+
+  - g.column name: 'Activity Time (EST)', attribute: 'event_time', model: UserEvent do |obj|
+    - obj.event_time
+  - g.column name: 'Activity Type', attribute: 'event_type'

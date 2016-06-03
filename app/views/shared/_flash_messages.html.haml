@@ -1,0 +1,5 @@
+- flash.each do |name, msg|
+  - if msg.present?
+    %div{:class => "alert alert-#{name == 'notice' ? "success" : "danger"}"}
+      %a.close{"aria-hidden" => "true", "data-dismiss" => "alert", href: "#"} &times;
+      = msg

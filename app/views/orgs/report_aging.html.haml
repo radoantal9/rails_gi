@@ -1,0 +1,24 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+%h2 Aging Report
+
+%h3= @course.title
+.row
+  .col-md-4.text-left
+    %button.btn.btn-primary.wg-external-csv-export-button{'data-grid-name'=> 'aging'}Export To CSV
+  .col.md-4.text-right
+    %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'aging'} Apply Filter
+    %button.btn.wg-external-reset-button{'data-grid-name' => 'aging'} Reset filter
+%p
+- if Rails.cache.fetch("UserEventsMaterializedView.updated_at")
+  .row
+    .col-md-12
+      %small.text-right
+        Updated:
+        = distance_of_time_in_words_to_now ( Rails.cache.fetch("UserEventsMaterializedView.updated_at") )
+        = " ago (in #{Rails.cache.fetch("UserEventsMaterializedView.update_duration").round} sec.)"
+= render 'orgs/aging_grid'
+
+= render_grid(@aging_grid)

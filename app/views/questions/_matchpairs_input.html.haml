@@ -1,0 +1,52 @@
+:ruby
+  answers = @question.xmlnode.xpath('//choice/@match').collect(&:to_s)
+  answers.shuffle!
+
+.matching_pair_div
+  .question_heading
+    - if @number
+      = "Question #{@number}: "
+    = render_statement @question
+  %ol
+    - @question.xmlnode.xpath('//choice').each do |ch|
+      - id = "#{@question.id}_#{QuestionHelper.uniq_name_creator ch['text']}"
+      %li.matching_pair_inputs.form-group
+        %label{:for=> id, :class => "radio_label", :"data-for" => ch['text']}
+          = ch['text']
+        %br
+        - if @given_answers
+          %ul
+            - answers.each do |x|
+              %li
+                = x.to_s
+
+                = option_responses_count @question.id, ch['text'], x
+
+        - else
+          %select.form-control{:id => id, :name => "#{@question.id}[#{ch['text']}]"}
+            %option
+              Select one
+            - answers.each do |x|
+              %option{"value" => "#{x.to_s}"}
+                = x.to_s
+
+        = render partial: 'questions/comment_choice', locals: { choice: ch }
+
+        %span.correct_incorrect_text{:id=>"cor_incor_text_#{id}"}
+        %br
+
+.result_box.alert.alert-block{:name => "result_box_#{@question.id}", 
+  "data-count"=>"#{@question.get_number_of_choices}", :id=>"result_box_#{@question.id}"}
+  %h4.alert-heading
+    Resulting:
+  %div{:name => "resulting_message"}
+    Message:
+    %p
+      Correct number:
+      %span{:id => "count_correct_#{@question.id}"}
+        0
+      from
+      %span{:id => "count_all_#{@question.id}"}
+        0
+    %ol{:id => "help_correct_#{@question.id}"}
+    %ol{:id => "help_incorrect_#{@question.id}"}

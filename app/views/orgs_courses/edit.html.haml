@@ -1,0 +1,16 @@
+= render 'shared/ace_editor'
+
+%h3 Edit
+
+= render 'form'
+
+%br
+%hr
+%h3 Emails
+= render 'course_mails/form', object: @orgs_course, email_types: CourseMail::ORG_COURSE_EMAIL_TYPES
+%br
+%br
+
+= link_to 'Show', @orgs_course
+\|
+= link_to 'Back', orgs_courses_path

@@ -1,0 +1,16 @@
+= simple_form_for(@question, html: { class: 'form-horizontal', role: 'form' }) do |f|
+  - if @question.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@question.errors.count, "error")
+        prohibited this question from being saved:
+      %ul
+        - @question.errors.full_messages.each do |msg|
+          %li= msg
+  = f.input :retired
+  = f.input :title
+  = f.input :name
+  = f.association :quizzes, label_method: :label, input_html: {class: "select2"}
+  = f.input :content, as: :text, input_html: {class: "code-textarea", height: "250px !important"}
+  = f.input :question_privacy, as: :select, collection: Question.question_privacies_for_select
+  = f.submit class: 'btn'

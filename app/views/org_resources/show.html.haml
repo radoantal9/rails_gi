@@ -1,0 +1,11 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li= link_to 'Custom Contents', org_resources_path(@org)
+  %li.active Show
+
+%p
+  %b Org key:
+  = @org_resource.org_key
+%p
+  %b Org value:
+  != @org_resource.org_value

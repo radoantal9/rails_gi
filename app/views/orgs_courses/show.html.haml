@@ -1,0 +1,16 @@
+%p#notice= notice
+
+%p
+  %b Created Enrollment for
+  = link_to "#{@orgs_course.org}", @orgs_course.org
+  Org Active? #{@orgs_course.org.is_active}
+%p
+  %b Course:
+  = @orgs_course.course.title
+%p
+  %b Enrollment code:
+  = @orgs_course.enrollment_code
+
+= link_to 'Edit', edit_orgs_course_path(@orgs_course)
+\|
+= link_to 'Back', orgs_courses_path

@@ -1,0 +1,48 @@
+- prev = current_user.question_responses.by_question(@question).order('updated_at DESC').first
+
+.guess{'data-id-question' => @question.id}
+  %fieldset
+    %legend= render_statement @question
+
+    %hr
+
+    - @question.xmlnode.xpath('//question/item').each do |item|
+      - next if item.attributes.empty?
+      - id = QuestionHelper.uniq_name_creator item["text"]
+      - options = {id: id, name: id}
+      - if prev and prev.given_answer['answer'].has_key?(item['text'])
+        - options[:'data-answered'] = prev.given_answer['answer'][item['text']]
+        - res = GuessQuestion.response(@question, item, options[:'data-answered'])
+        - options[:'data-correct'] = res[:correct]
+        - options[:'data-range']   = res[:range_text]
+      
+      %label{:for => id}= item["text"]
+
+      %div.guess-input
+        - case item["type"]
+        - when "slider"
+          - min = item['min'].to_i
+          - max = item['max'].to_i
+          %div.form-group{:style => "display: inline-block; margin-right: 24px"}
+            %input{{:type => 'text', :id => "slider_value_#{id}", :'data-ignore' => true, :size => 3, :class => "form-control", :style => 'width: auto', :'data-slider-text' => 'true'}.reverse_merge(options)}
+          = min
+          %div{:style => "display: inline-block;"}
+            - options[:value] = (max - min) / 2
+            %input{{:type => "range", :name => id, :id => id, :'data-slider-min' => min, :'data-slider-max' => max, :min => min, :max => max, :class => ""}.reverse_merge(options)}
+          = max
+        - when "text"
+          - options = {:type => "text", :id => id, :name => id, :class=>"form-control"}.reverse_merge(options)
+          - if item['min_chars']
+            - options[:pattern] = ".{#{item['min_chars']},}"
+          - if item['min_words']
+            - options['data-min-words'] = item['min_words']
+          %input{options}
+          - if options['data-min-words']
+            %span.count_words.label.label-info{'data-for' => id}
+        - when "number"
+          %input{{:type => "number", :name => id, :id => id, :class => "form-control"}.reverse_merge(options)}
+        - else
+          = raise "Don't know how to handle `#{item['type']}` type"
+        %a.get-results.btn.btn-info Check
+        %div.results{'data-results' => id}
+      %hr

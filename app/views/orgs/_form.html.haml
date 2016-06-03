@@ -1,0 +1,59 @@
+= simple_form_for(@org, html: { class: 'form-horizontal', role: 'form' }) do |f|
+  - if @org.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@org.errors.count, "error")
+        prohibited this org from being saved:
+      %ul
+        - @org.errors.full_messages.each do |msg|
+          %li= msg
+  = f.input :name
+  = f.input :domain
+  = f.input :description
+  = f.input :is_active
+  = f.input :contact, :input_html => {rows: '5', cols: '40'}
+  = f.input :notes, :input_html => {rows: '5', cols: '40'}
+  = f.input :signup_key
+
+  -# http://stackoverflow.com/questions/9613208/serialized-hash-field-and-simple-form
+  = f.simple_fields_for :org_details_attr, OpenStruct.new(@org.org_details) do |ff|
+    .row
+      .col-sm-5.col-sm-offset-2
+        = ff.label :disable_min_words_essay, label: 'Do not require min-words for essays'
+        = ff.input_field :disable_min_words_essay, as: :boolean
+
+      .col-sm-5
+        = ff.label :skip_pledge_modal, label: 'Do not show Pledge of Inclusion modal'
+        = ff.input_field :skip_pledge_modal, as: :boolean
+
+    .row
+      .col-sm-5.col-sm-offset-2
+        = ff.label :skip_user_details
+        = ff.input_field :skip_user_details, as: :boolean
+
+  %h3(style="margin-top: 40px") Notifications
+
+  %table.table
+    %thead
+      %tr
+        %th Manager
+        %th activity_report
+        %th signup_notification
+        %th completion_notification
+    - @org.user_managers.each do |user|
+      - nt = user.notifications
+      %tr
+        %td
+          = user.full_name
+          = hidden_field_tag 'org[notifications][][user_id]', user.id
+        %td
+          = select_tag 'org[notifications][][activity_report]', options_for_select(%w(none daily weekly monthly), nt['activity_report']), include_blank: false, class: "form-control"
+
+        %td
+          = select_tag 'org[notifications][][signup_notification]', options_for_select(%w(none realtime daily weekly), nt['signup_notification']), include_blank: false, class: "form-control"
+
+        %td
+          = select_tag 'org[notifications][][completion_notification]', options_for_select(%w(none realtime daily weekly), nt['completion_notification']), include_blank: false, class: "form-control"
+
+  .actions
+    = f.submit :class => 'btn btn-primary'

@@ -1,0 +1,84 @@
+-#:coffee
+  $ ->
+    orgs = #{ Org.all.to_json(methods: [:courses]) }
+    pp orgs
+    $('#org_id').change ->
+      $('#course_id option').remove()
+
+      org_id = Number($('#org_id').val())
+      if org_id > 0 && (org = _.find orgs, (org)-> org.id == org_id)
+        pp org
+        for course in org.courses
+          $('#course_id').append """<option value="\#{course.id}">\#{course.name}</option>"""
+
+:coffee
+  $ ->
+    $save_status = $('#save_status')
+
+    $('#save_privacy_levels').click (ev)->
+      pp 'save_privacy_levels'
+      ev.preventDefault()
+
+      return if $save_status.text() == 'saving'
+      $save_status.text 'saving'
+
+      privacy_levels = {}
+      $('.question_privacy_level').each (i, it)->
+        $it = $(it)
+        privacy_levels[$it.data('id')] = $it.val()
+      pp privacy_levels
+
+      $.post "#{ privacy_questions_path }",
+        org_id: "#{ params[:org_id] }"
+        course_id: "#{ params[:course_id] }"
+        privacy_levels: privacy_levels
+      .done ->
+        $save_status.text 'done'
+      .fail ->
+        $save_status.text 'failed'
+
+%h3 Org-specific privacy of questions
+
+-#- if @org && @course
+- unless @org
+  = form_tag privacy_questions_path, :method => :get, class: 'form-small' do
+    .form-group
+      = label_tag :org_id
+      = select_tag :org_id, options_from_collection_for_select(Org.all, :id, :name, params[:org_id]), :include_blank => true, :class => "form-control"
+    -#.control-group
+      = label_tag :course_id
+      = select_tag :course_id
+      -#= select_tag :course_id, options_from_collection_for_select(Course.all, :id, :name, params[:course_id]), :include_blank => true
+    = submit_tag 'Filter', :class => 'btn btn-primary'
+
+- else
+  %p
+    %b Org:
+    #{@org.name}
+  -#%p
+    %b Course:
+    #{@course.name}
+  = link_to 'Reset', privacy_questions_path, :class => 'btn'
+
+  %table.table
+    %thead
+      %tr
+        %th Id
+        %th Page
+        %th Statement
+        %th Content
+        %th Privacy Level
+
+    - @questions.each do |question|
+      %tr
+        %td= question.id
+        %td
+          - question.course_pages.each do |page|
+            = link_to page.page_num, page_course_path(page.course, page.page_num)
+        %td= question.statement.truncate(140)
+        %td= question.question_type
+        %td
+          = select_tag :question_privacy, options_for_select(Question.question_privacies_for_select, question.org_question_privacy(@org)), id: nil, 'data-id' => question.id, :class => "question_privacy_level form-control"
+
+  = link_to 'Save', '#', id: 'save_privacy_levels', class: 'btn btn-primary'
+  #save_status.label.label-info

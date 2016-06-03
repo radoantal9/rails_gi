@@ -1,0 +1,27 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+%p
+  Send surveys.
+
+= link_to 'Send Surveys', new_org_course_survey_path(@org, @course), :class => "btn btn-lg btn-primary"
+%hr
+%h3 Survey Activity Stream
+
+= render 'surveys/surveys_grid'
+
+%p Table below shows history and status of surveys sent to users.  You can filter by email address, survey status or by sent date range.
+%p Survey status include:
+%ol
+  %li Created: Survey was created an is in queue to be emailed
+  %li Sent: Survey email was sent
+  %li Viewed: Recipient opened the email
+  %li Submitted: Recipent acted by clicking the link in the email
+  %li Failed: Survey email was not successfully generated
+.text-right
+  %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'surveys'} Apply Filters
+  %button.btn.wg-external-reset-button{'data-grid-name' => 'surveys'} Reset
+%p
+  = render_grid(@surveys_grid)
+
+%br

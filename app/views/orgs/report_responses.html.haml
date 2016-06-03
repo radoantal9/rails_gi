@@ -1,0 +1,106 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+%h2 Consolidated Participant Response Report
+
+%h3= @course.name
+
+- @course.course_pages.each do |page|
+  - header = true
+
+  - page.questions.each do |question|
+    - next if question.question_type != "essay"
+    - question_responses = question.question_responses.not_private.joins(:user).where('users.org_id' => @org.id).to_a.shuffle
+    - next if question_responses.empty?
+
+    - if header
+      - header = false
+      %ul.breadcrumb
+        %li Page #{page.page_num}
+        %li= page.learning_module.title
+        %li= page.lesson.title
+
+    %h3.question_statement= question.statement
+
+    %ol
+      - question_responses.each do |res|
+        %li
+          /
+            = res.id
+
+          - answer = res.get_given_answer
+          - if answer.is_a? Hash
+            %ul
+              - answer.each do |answer_key, answer_value|
+                %li
+                  %b= answer_key
+
+                  - if answer_value.is_a? Hash
+                    %ul
+                      - answer_value.each do |k, v|
+                        %li
+                          %b= k
+                          = v
+
+                  - else
+                    = answer_value
+
+          - else
+            = answer
+
+  -#- page.quizzes.each do |quiz|
+  -#
+  -#  - quiz_results = quiz.quiz_results.joins(:user).where('users.org_id' => @org.id)
+  -#  - unless quiz_results.empty?
+  -#    - if header
+  -#      - header = false
+  -#      %ul.breadcrumb
+  -#        %li
+  -#          Page
+  -#          = page.page_num
+  -#        %li
+  -#          = page.learning_module.title
+  -#        %li
+  -#          = page.lesson.title
+  -#
+  -#    - quiz_scores = quiz_results.map {|r| r.score }
+  -#
+  -#    .alert.alert-info
+  -#      N: #{ quiz_scores.count },
+  -#      Avg: #{ (quiz_scores.sum / quiz_scores.count).to_i }%,
+  -#      std.dev: #{ quiz_scores.count > 1 ? quiz_scores.stdev.to_i : 0 }%
+
+        -#= quiz_scores.as_json
+
+
+      :ruby
+        @given_answers = {}
+
+        quiz_results.each do |quiz|
+          quiz.question_grade_reports.each do |resp|
+            @given_answers[resp.question_id] ||= {}
+
+            given_answer = resp.given_answer['answer']
+            unless given_answer.is_a? Enumerable
+              given_answer = [ given_answer ]
+            end
+
+            given_answer.each do |answer|
+              answer = [*answer].map {|k| QuestionHelper.uniq_name_creator(k) }
+              if @given_answers[resp.question_id][answer]
+                @given_answers[resp.question_id][answer] += 1
+              else
+                @given_answers[resp.question_id][answer] = 1
+              end
+            end
+          end
+        end
+
+      -#%pre
+      -#  = MultiJson.dump quiz_results.as_json(methods: [:question_grade_reports]), pretty: true
+      -#  = @given_answers
+
+      - quiz.questions.order("position").each_with_index do |q, i|
+        %div{"data-qid" => q.id, "data-q-type" => q.question_type}
+          = render QuestionHelper.partial_name(q), :@question => q, :@number => i + 1

@@ -1,0 +1,16 @@
+= @user.first_name.titleize + " - " unless @user.first_name.blank?
+You have completed #{@completion_percentage}% of the course
+\
+- if @course_email
+  = strip_tags @course_email.email_message
+\
+- if @org_course_email
+  = strip_tags @org_course_email.email_message
+\
+Please continue the course at: #{ token_authenticate_url(@user.generate_authentication_token, reminder: @reminder.try(:reminder_token)) }
+\
+If you have any questions please reply to this email.
+\
+Thank you,
+\
+Team GetInclusive.

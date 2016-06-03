@@ -1,0 +1,39 @@
+- @learning_module.text_block ||= TextBlock.new
+
+= simple_form_for @learning_module, html: { class: 'form-horizontal', role: 'form' } do |f|
+  - if @learning_module.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@learning_module.errors.count, "error")} prohibited this learning_module from being saved:"
+      %ul
+        - @learning_module.errors.full_messages.each do |msg|
+          %li= msg
+
+
+  = f.input :name
+  = f.input :title
+  = f.input :description, :as => :text, input_html: { :rows => 7 , :style => 'width: 100%', class: "code-textarea"}
+
+  = f.input :description_image, as: :file
+  = f.hidden_field :description_image_cache
+  = f.input :remove_description_image, as: :boolean
+  - if @learning_module.description_image.present?
+    .row
+      .col-md-3.col-md-offset-2
+        = image_tag @learning_module.description_image.url(:thumb), class: 'thumbnail'
+
+  -#= f.association :lessons, collection: Lesson.order('name'), wrapper_html: { class: 'scrollable_checkboxes' }, label: "Include Lessons (scrollable list)", as: :check_boxes, label_method: :name
+  .form-group
+    .row
+      .col-md-5
+        = f.label "Include Lessons"
+    %br
+      .row
+        .col-md-5.col-md-offset-1
+          = f.select :lesson_ids, options_from_collection_for_select(Lesson.order('name'), :id, :name, @learning_module.lessons.pluck(:id)), {}, {multiple: true, class: "select2"}
+
+  = f.simple_fields_for :text_block do |tb|
+    = input_text_block tb
+
+  %br
+  .form-group
+    = f.submit 'Save', class: 'btn'

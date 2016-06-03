@@ -1,0 +1,12 @@
+= define_grid(@surveys_grid, show_filters: :always) do |g|
+  -#- g.column name: 'Id', attribute: 'id'
+  - g.column name: 'Token', attribute: 'survey_token'
+
+  - g.column name: 'Question' do |obj|
+    - link_to obj.question.title, obj.question
+
+  - g.column name: 'Email', attribute: 'survey_email', html: { class: 'email' }
+
+  - g.column name: 'State', attribute: 'survey_state', custom_filter: Survey.survey_state_list
+  - g.column name: 'Sent', attribute: 'sent_at'
+  - g.column name: 'Sent count', attribute: 'sent_count'

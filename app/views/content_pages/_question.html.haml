@@ -1,0 +1,17 @@
+- privacy = element.org_question_privacy(current_user.org)
+
+- if privacy == :confidential_private
+  - info = "Your response is 100% anonymous and private, neither your response nor your identity will be revealed to anyone. You can view your responses in Student Journal in dashboard"
+  - icon = 'icon-lock'
+- elsif privacy == :confidential_anonymous
+  - info = "Your response is 100% anonymous; you name and identity will remain hidden. Only when there are enough responses from other students we will randomize and mix it with other responses when sharing with your instructors. Do not leave identification information in your responses to ensure anonymity."
+  - icon = 'icon-eraser'
+
+- if info
+  .pull-right
+    %span.label.label-info
+      %a(data-toggle="tooltip" data-placement="bottom" href="#question_privacy_popup" title="#{info}" rel="tooltip")
+        %i(class=icon)
+        = privacy.to_s.titleize
+
+= render QuestionHelper.partial_name(element), :@question => element

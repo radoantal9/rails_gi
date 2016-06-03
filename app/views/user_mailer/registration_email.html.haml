@@ -1,0 +1,19 @@
+%h1
+  Registration email
+
+%p
+  %b Name:
+  = @user.name
+
+%p
+  %b Email address:
+  = @user.email
+
+%p
+  %b Org:
+  = @user.org_name
+
+- unless @user.courses.empty?
+  %p
+    %b Course name:
+    = @user.courses.pluck(:name)

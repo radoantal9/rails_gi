@@ -1,0 +1,41 @@
+.radio_div.multiple_choice_question
+  -#<!--todo: Headings dont show background color when in quiz -->
+  %h3.question_heading
+    - if @number
+      = "Question #{@number}: "
+    = render_statement @question
+
+  %ul.well.list-unstyled
+    - @question.xmlnode.xpath('//choice').each do |ch|
+      - id = "#{@question.id}_#{QuestionHelper.uniq_name_creator ch['text']}"
+      .checkbox
+        %label{:for=> id, :class => "check_label", :"data-for" => ch['text']}
+          %input.radio{ :id => id, :type => "checkbox", :name => "#{@question.id}[]",
+            :value => "#{ch['text']}"}
+          %span.rad_text=ch['text']
+
+          -#- if user_signed_in? and current_user.is_admin? and ch['score'] == '1'
+          -#  [correct]
+
+          = option_responses_count @question.id, ch['text']
+
+          %span.correct_incorrect_text{:id=>"cor_incor_text_#{id}"}
+          %br
+
+    = render partial: 'questions/comment_question', locals: { choices: @question.xmlnode.xpath('//choices').first }
+
+.result_box.alert.alert-block.hide{:name => "result_box_#{@question.id}", "data-count"=>"1", 
+      :id=>"result_box_#{@question.id}"}
+  %h4.alert-heading
+    Results:
+  %div{ :name => "result_message"}
+    Message
+    %p
+      Correct number:
+      %span{:id => "count_correct_#{@question.id}"}
+        0
+      from
+      %span{:id => "count_all_#{@question.id}"}
+        0
+    %p{:id => "help_correct_#{@question.id}"}
+    %p{:id => "help_incorrect_#{@question.id}"}

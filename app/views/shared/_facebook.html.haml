@@ -1,0 +1,38 @@
+:javascript
+  $(document).ready(function() {
+    $.ajaxSetup({ cache: true });
+    //$.getScript('//connect.facebook.net/en_US/all/debug.js', function(){
+    $.getScript('//connect.facebook.net/en_US/all.js', function(){
+      pp('FB.init');
+
+      // init the FB JS SDK
+      FB.init({
+        appId      : '#{ APP_CONFIG['facebook_key'] }',    // App ID from the app dashboard
+        channelUrl : '#{ root_url.gsub(/^https?:/, '') }channel.html', // Channel file for x-domain comms
+        status     : false,                                // Check Facebook Login status
+        xfbml      : false                                 // Look for social plugins on the page
+      });
+
+      // Additional initialization code such as adding Event Listeners goes here
+    });
+  });
+
+  window.postToFeed = function() {
+    FB.ui(
+      {
+       method: 'feed',
+       name: "#{ t('facebook.feed.name') }",
+       caption: "#{ t('facebook.feed.caption') }",
+       description: "#{ t('facebook.feed.description') }",
+       link: "#{ t('facebook.feed.link') }",
+       picture: "#{ t('facebook.feed.picture') }"
+      },
+      function(response) {
+        if (response && response.post_id) {
+          pp('Post was published.');
+        } else {
+          pp('Post was not published.');
+        }
+      }
+    );
+  }

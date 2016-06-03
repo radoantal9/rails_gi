@@ -1,0 +1,13 @@
+= define_grid(@reminders_grid, show_filters: :always) do |g|
+  -#- g.column name: 'Id', attribute: 'id'
+
+  - g.column name: 'First Name', attribute: 'first_name', model: User do |obj|
+    - obj.user.first_name
+  - g.column name: 'Last Name', attribute: 'last_name', model: User do |obj|
+    - obj.user.last_name
+  - g.column name: 'Email', attribute: 'email', model: User, html: { class: 'email' } do |obj|
+    - obj.user.email
+
+  - g.column name: 'State', attribute: 'reminder_state', custom_filter: Reminder.reminder_state_list
+  - g.column name: 'Sent', attribute: 'sent_at'
+  - g.column name: 'Sent count', attribute: 'sent_count'

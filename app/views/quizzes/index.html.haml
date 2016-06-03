@@ -1,0 +1,26 @@
+%h3 Quizzes
+
+= link_to('New Quiz', new_quiz_path, :class => "btn btn-primary pull-right")
+%br
+%br
+
+%table.table.table-striped
+ %tr
+  %th Id
+  %th Name 
+  %th Title 
+  %th Num of Questions
+  %th
+  %th
+  %th
+ - @quizzes.each do |quiz|
+  %tr
+   %td= quiz.id
+   %td= truncate(quiz.name, :length => 75)
+   %td= truncate(quiz.title, :length => 75)
+   %td
+    %span.badge= quiz.questions.count
+   %td= link_to 'Show', quiz
+   %td= link_to 'Edit', edit_quiz_path(quiz)
+   %td= link_to 'Destroy', quiz, method: :delete, data: { confirm: 'Are you sure?' }
+%br/

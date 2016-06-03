@@ -1,0 +1,59 @@
+= render 'shared/ace_editor'
+
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+%h1 Course Invitations
+%p Use this page to invite new users, resend invitations and to view history of previous invitations.
+.row
+  .col-md-6
+    .panel.panel-primary
+      .panel-heading
+        %p Send New Invitations
+      .panel-body
+        %p
+          Paste email address (or type) in the textbox below.  One email address per line.  Emails to users who have been sent invitations in the past 24 hours will be ignored.
+        = form_tag org_course_invitations_path(@org, @course), method: :post, multipart: true  do
+          = text_area_tag :emails, nil, class: 'form-control', rows: 5, style: 'width:100%; margin-bottom: 10px'
+          Or select a file to upload (one email address per line, plain text file.  )
+          = file_field_tag :emails_file, class: 'form-control'
+          %br
+          = submit_tag 'Send invitation', class: 'btn btn-primary btn-lg'
+
+  .col-md-6
+    .panel.panel-primary
+      .panel-heading
+        %p Resend Invitations
+      .panel-body
+        %p
+          Send invitations to participants who were sent invitation email but have not yet enrolled 
+        -#%div(style="margin: 10px 0")
+          = button_to 'Resend invitations', resend_org_course_invitations_path(@org, @course), method: :post, class: 'btn btn-primary btn-lg',
+            confirm: "Are you sure to resend invitation reminders to not enrolled participants (#{@invitations.not_accepted.count} emails)?"
+
+        = form_tag resend_org_course_invitations_path(@org, @course), method: :post do
+          .form-group
+            = text_field_tag :email_subject, '', placeholder: 'E-mail subject', class: 'form-control'
+          .form-group
+            = text_area_tag :email_message, '', placeholder: 'Message', class: 'form-control',
+              "ace-editor" => "", "ace-mode" => "html", style: "height: 173px;"
+
+          = submit_tag 'Resend invitations', class: 'btn btn-primary btn-lg', confirm: "Are you sure to resend invitation reminders to not enrolled participants (#{@invitations.not_accepted.count} emails)?"
+
+%h2 View Invitation History
+
+%p.text-right
+  %button.btn.btn-primary.wg-external-submit-button{'data-grid-name' => 'invitations'} Apply Filter
+  %button.btn.wg-external-reset-button{'data-grid-name' => 'invitations'} Reset filter
+
+= render 'invitations/invitations_grid'
+
+= render_grid(@invitations_grid)
+
+
+
+
+
+
+

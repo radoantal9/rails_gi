@@ -1,0 +1,6 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li= link_to 'Custom Contents', org_resources_path(@org)
+  %li.active New
+
+= render 'form'

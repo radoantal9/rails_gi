@@ -1,0 +1,18 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Volumes": [
+     {
+      "ContainerDirectory": "/usr/src/app",
+      "HostDirectory":"/usr/src/app"
+     }
+    ],
+    "Logging": "/var/eb_log",
+    "Image": {
+        "Name": "ubuntu:14.04"
+    },
+    "Ports": [
+        { 
+            "ContainerPort": "80"
+        }
+ ]
+}

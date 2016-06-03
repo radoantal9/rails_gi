@@ -1,0 +1,6 @@
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li= link_to 'All users', org_users_path(@org)
+  %li.active Create User
+
+= render 'form'

@@ -1,0 +1,2 @@
+memc: memcached -v
+web: zeus start

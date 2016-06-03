@@ -1,0 +1,15 @@
+%td
+  = result.searchable.class.name
+%td
+  - roc = result.searchable.orgs_course
+  =link_to "Click for details", org_course_invitation_detail_path(roc.org, roc.course, result.searchable.id)
+%td
+  %ul.inline.search
+    %li
+      = "#{result.searchable.invitation_state} | #{result.searchable.orgs_course.course.title}"
+    %li
+      - if search_t([result.searchable.invitation_email], @query)
+        Invitation email:
+        = highlight_excerpt result.searchable.invitation_email, @query
+      - else
+        = highlight_excerpt result.searchable.invitation_email, @query

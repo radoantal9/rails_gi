@@ -1,0 +1,20 @@
+= define_grid(@questions) do |g|
+  - g.row_attributes do |columns|
+    - if columns.retired
+      - {style: 'background-color: rgb(255, 104, 104);'}
+  - g.column name: 'Type', attribute: 'question_type', detach_with_id: :type_filter, custom_filter: :auto, allow_multiple_selection: true
+  - g.column name: 'Name', attribute: 'name', detach_with_id: :name_filter 
+  - g.column name: 'Title', attribute: 'title', detach_with_id: :title_filter do |uc|
+    - link_to uc.title, question_path(uc)
+  - g.column name: 'Retired', attribute: 'retired', detach_with_id: :retired_filter do |uc|
+    - uc.retired ? 'Yes' : 'No'
+  - g.column name: 'Updated at', attribute: 'updated_at', detach_with_id: :updated_at_filter do |uc|
+    - uc.updated_at.to_s(:long)
+  - g.column do |uc|
+    - link_to('Show', question_path(uc) )
+  - g.column do |uc|
+    - link_to('Edit', edit_question_path(uc) )
+  - g.column do |uc|
+    - link_to('Test', test_question_path(uc) )
+  - g.column do |uc|
+    - link_to 'Destroy', uc, :method => :delete, :data => { :confirm => 'Are you sure?' }

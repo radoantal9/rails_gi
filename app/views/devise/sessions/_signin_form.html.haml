@@ -1,0 +1,18 @@
+.signin-form
+  = form_for(resource, :as => resource_name, :url => session_path(resource_name), html: { role:"form", class: 'form-signin' }) do |f|
+    .text.text-right
+      = link_to "Sign up", "/register_student?code=#{params[:code]}"
+    - if params[:exists] == 'true'
+      %h2.form-signin-heading You already have an account, just sign in
+    - else
+      %h2.form-signin-heading Please Sign in
+    = f.text_field :email, :autofocus => params[:email].nil?, :placeholder => "Login id / email", :required => "", :class => 'form-control', :value => params[:email]
+    = f.password_field :password, :autofocus => !params[:email].nil?, :placeholder => "Password", :class => "form-control"
+    - if params[:code]
+      = f.hidden_field :code, value: params[:code]
+
+    - if devise_mapping.rememberable?
+      .form-group
+        = f.check_box :remember_me
+        = f.label :remember_me
+    %button.btn.btn-lg.btn-primary.btn-block.btn-signin{type: "submit"} Sign in

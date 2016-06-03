@@ -1,0 +1,103 @@
+= render 'shared/ace_editor'
+
+:coffee
+  $ ->
+    # Add selected users_ids to submit data
+    $('#schedule_email').click (e)->
+      e.preventDefault()
+
+      user_ids = []
+      invitation_ids = []
+      for obj in $('#users_form').serializeArray()
+        if obj.name == 'users[selected][]'
+          user_ids.push obj.value
+        else if obj.name == 'invitations[selected][]'
+          invitation_ids.push obj.value
+      pp 'schedule_email', user_ids, invitation_ids
+
+      question_id = $('#question_id option:selected').val()
+
+      if !question_id
+        alert('No question selected')
+      else if _.isEmpty(user_ids) && _.isEmpty(invitation_ids)
+        alert('No email selected')
+      else if confirm "Are you sure to send survey email to \#{user_ids.length + invitation_ids.length} participants"
+        $form = $('#schedule_form')
+        $form.find('input[name=user_ids]').val(user_ids.join(','))
+        $form.find('input[name=invitation_ids]').val(invitation_ids.join(','))
+        $form.find('input[name=send_type]').val('selected_users')
+        $form.submit()
+
+    $('#schedule_email_to_all').click (e)->
+      e.preventDefault()
+      pp 'schedule_email_to_all'
+
+      question_id = $('#question_id option:selected').val()
+
+      if !question_id
+        alert('No question selected')
+      else if confirm "Are you sure to send survey email to all participants"
+        $form = $('#schedule_form')
+        $form.find('input[name=user_ids]').val('')
+        $form.find('input[name=invitation_ids]').val('')
+        $form.find('input[name=send_type]').val('all_users')
+        $form.submit()
+
+%ol.breadcrumb
+  %li= link_to @org.name, org_path(@org)
+  %li.active Course: #{@course.title}
+
+%h2 Create survey emails
+
+= form_tag new_org_course_survey_path(@org, @course), method: :get, id: 'users_form', class: 'form-small' do
+  -#= dump_filter_parameters_as_hidden_fields(@users_grid) if @users_grid
+  -#= dump_filter_parameters_as_hidden_fields(@invitations_grid) if @invitations_grid
+
+  .checkbox
+    %label
+      = check_box_tag 'invited', '1', params[:invited]
+      invitation_sent (these will not have user accounts)
+  .checkbox
+    %label
+      = check_box_tag 'not_completed', '1', params[:not_completed]
+      Users in a course who have not completed
+  .checkbox
+    %label
+      = check_box_tag 'completed', '1', params[:completed]
+      Users in a course 100% completion
+
+  = submit_tag 'Filter', class: 'btn btn-primary'
+  = link_to 'Reset', new_org_course_survey_path(@org, @course), class: 'btn btn-default'
+
+  %br
+  %br
+
+  - if @users_grid
+    = render 'surveys/users_grid'
+
+    = render_grid(@users_grid)
+
+  - if @invitations_grid
+    = render 'surveys/invitations_grid'
+
+    = render_grid(@invitations_grid)
+
+
+= form_tag org_course_surveys_path(@org, @course), method: :post, id: 'schedule_form' do
+  = hidden_field_tag :user_ids
+  = hidden_field_tag :invitation_ids
+  = hidden_field_tag :send_type
+  = hidden_field_tag :invited, params[:invited]
+  = hidden_field_tag :not_completed, params[:not_completed]
+  = hidden_field_tag :completed, params[:completed]
+
+  .form-group
+    = select_tag :question_id, options_from_collection_for_select(Question.by_question_type('survey'), 'id', 'title', params[:question_id]), class: 'form-control', include_blank: true
+  .form-group
+    = text_field_tag :email_subject, @org_course_email.try(:email_subject), placeholder: 'E-mail subject', class: 'form-control'
+  .form-group
+    = text_area_tag :email_message, @org_course_email.try(:email_message), placeholder: 'Message', class: 'form-control',
+      "ace-editor" => "", "ace-mode" => "html", style: "height: 300px;"
+
+  = submit_tag 'Send Only to Selected', class: 'btn btn-info', id: 'schedule_email'
+  = submit_tag 'Send to All', class: 'btn btn-info', id: 'schedule_email_to_all'

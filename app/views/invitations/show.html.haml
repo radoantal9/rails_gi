@@ -1,0 +1,31 @@
+%h1
+  Invitation Detail
+%h2
+  Email address:
+  = @invitation.invitation_email
+  - begin @invitation.orgs_course.org.name
+    %p
+      Org: #{@invitation.orgs_course.org.name}
+      %br Course: #{@invitation.orgs_course.course.title}
+    %p
+      Invitation status:
+      - if @invitation.invitation_state == 'invitation_accepted'
+        %ul
+          %li Invitation was accepted on: #{@invitation.updated_at}
+          %li First invitation was sent on: #{@invitation.created_at}
+
+        %p
+          Registered user (click for more details):
+          = link_to (@invitation.invited_user.try(:name)),
+                org_user_path(@invitation.invited_user.org, @invitation.invited_user.id), class: 'btn btn-success btn-md'
+      - else @invitation.invitation_state == 'invitation_viewed'
+        %b #{@invitation.invitation_state.gsub("_", " ").titlecase} on #{@invitation.updated_at}
+        %p Invitee has not acted on the invited and not yet registered.
+
+    - if @invitation.can_deactivate_invitation?
+      = link_to 'Deactivate', activate_org_course_invitation_path(@invitation.orgs_course.org, @invitation.orgs_course.course, @invitation), method: :post, class: "btn btn-lg btn-danger"
+    - elsif @invitation.can_activate_invitation?
+      = link_to 'Activate', activate_org_course_invitation_path(@invitation.orgs_course.org, @invitation.orgs_course.course, @invitation), method: :post, class: "btn btn-lg btn-success"
+  - rescue => e
+    %p
+      User is not associated with the course

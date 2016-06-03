@@ -1,0 +1,27 @@
+%td
+  = result.searchable.class.name
+%td
+  = link_to "#{result.searchable.full_name}", org_user_path(result.searchable.org, result.searchable.id)
+
+%td
+  %ul.inline.search
+    - if search_t([result.searchable.first_name], @query) 
+      %li
+        First name:
+        =  highlight_excerpt result.searchable.first_name, @query
+    - if search_t([result.searchable.last_name], @query) 
+      %li
+        Last name:
+        =  highlight_excerpt result.searchable.last_name, @query
+    - if search_t([result.searchable.email], @query) 
+      %li
+        Email
+        = highlight_excerpt result.searchable.email, @query
+    - if search_t([result.searchable.anonid], @query) 
+      %li
+        AnonId
+        = highlight_excerpt result.searchable.anonid, @query
+    - if search_t([result.searchable.org_name], @query) 
+      %li
+        Org
+        = highlight_excerpt result.searchable.org_name, @query

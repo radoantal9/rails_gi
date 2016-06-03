@@ -1,0 +1,26 @@
+- @lesson.text_block ||= TextBlock.new
+
+= simple_form_for @lesson, html: { class: 'form-horizontal', role: 'form' } do |f|
+  - if @lesson.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@lesson.errors.count, "error")} prohibited this lesson from being saved:"
+      %ul
+        - @lesson.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.input :name
+  = f.input :title
+  = f.input :rate_lesson
+  -#= f.association :content_pages, collection: ContentPage.order('name'), order: 'name', wrapper_html: { class: 'scrollable_checkboxes' }, label: "Contains the following Content Pages (scrollable)", as: :check_boxes, label_method: :name
+  .form-group
+    .row
+      .col-md-5
+        = f.label "Contains the following Content Pages"
+    %br
+    .row
+      .col-md-5.col-md-offset-1
+        = f.select :content_page_ids, options_from_collection_for_select(ContentPage.order('name'), :id, :name, @lesson.content_pages.pluck(:id)), {}, {multiple: true, class: "select2"} 
+
+  = f.simple_fields_for :text_block do |tb|
+    = input_text_block tb
+  = f.submit 'Save', class: 'btn'

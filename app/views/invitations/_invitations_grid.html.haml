@@ -1,0 +1,16 @@
+= define_grid(@invitations_grid, show_filters: :always) do |g|
+  - g.column name: 'Email', attribute: 'invitation_email'
+  - g.column name: 'Status', attribute: 'invitation_state', custom_filter: Invitation.invitation_state_list, allow_multiple_selection: false
+  - g.column name: 'Created (EST)', attribute: 'created_at', model: Invitation do |inv|
+    - inv.created_at
+  - g.column name: 'Sent (EST)', attribute: 'sent_at'  , model: Invitation do |inv|
+    - inv.sent_at
+  - g.column name: 'Sent count', attribute: 'sent_count'
+  - g.column name: 'Invited user', attribute: 'email', model: User do |inv|
+    - inv.invited_user.try :full_name
+
+  - g.column name: 'State', in_csv: false do |inv|
+    - if inv.can_deactivate_invitation?
+      - link_to 'Deactivate', activate_org_course_invitation_path(@org, @course, inv), method: :post
+    - elsif inv.can_activate_invitation?
+      - link_to 'Activate', activate_org_course_invitation_path(@org, @course, inv), method: :post

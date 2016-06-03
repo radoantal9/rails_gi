@@ -1,0 +1,21 @@
+.form-actions
+  = link_to 'Back', text_blocks_path, :class => "btn btn-primary"
+  = link_to 'Show', @text_block, :class => "btn"
+  = link_to 'Save changes', "#", :onclick=>"$(\"form[class='edit_text_block']\").submit()", :class => "btn btn-primary"
+
+%h3 Editing Text block ID: #{@text_block.id}
+%br
+
+%ul.nav.nav-tabs
+  %li.active
+    %a{:href=>"#home", "data-toggle"=>"tab"}
+      Home
+  %li
+    %a#save_refresh{:href=>"#render", "data-toggle"=>"tab"}
+      Preview
+.tab-content
+  .tab-pane.fade.in.active#home
+    = render "form"
+  .tab-pane.fade#render
+    %div#render_area
+

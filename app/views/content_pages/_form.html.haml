@@ -1,0 +1,21 @@
+= simple_form_for @content_page, html: { class: 'form-horizontal', role: 'form' } do |f|
+  - if @content_page.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@content_page.errors.count, "error")} prohibited this content_page from being saved:"
+      %ul
+        - @content_page.errors.full_messages.each do |msg|
+          %li= msg
+  = f.input :name
+  = f.input :title
+  -#= f.association :lessons, collection: Lesson.order('updated_at desc'), label: "Attached to lessons", as: :check_boxes, wrapper_html: { class: 'scrollable_checkboxes' }, as: :check_boxes
+  .form-group
+    .row
+      .col-md-5
+        = f.label "Attached to lessons"
+    %br
+    .row
+      .col-md-5.col-md-offset-1
+        = f.select :lesson_ids, options_from_collection_for_select(Lesson.order('updated_at desc'), :id, :name, @content_page.lessons.pluck(:id)), {}, {multiple: true, class: "select2"} 
+
+  .actions
+    = f.submit 'Update', class: 'btn'

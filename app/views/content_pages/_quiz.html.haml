@@ -1,0 +1,6 @@
+= form_tag "/quizzes/grade/#{element.id}", class: "grade", id: "quiz_form", "data-ajax" => "false" do
+  %input{:name => "quiz_id", :type => "hidden", :value => element.id}
+  - element.questions.order("position").each_with_index do |q, i|
+    %div{"data-qid" => q.id, "data-q-type" => q.question_type}
+      = render QuestionHelper.partial_name(q), :@question => q, :@number => i + 1
+  %button#grade_quiz.btn.btn-primary.btn-success Submit Quiz

@@ -1,0 +1,33 @@
+%h3 QuizResults#index
+
+= link_to 'Clean admin result', '/quiz_results/clean_admin_result', :method => :post, :data => { :confirm => 'Are you sure?' }, :class=>"btn pull-right"
+
+= form_tag quiz_results_path, :method => :get, :class => 'form-inline' do
+  .form-group
+    = label_tag do
+      User
+      = select_tag :user_id, options_from_collection_for_select(User.all, :id, :email, params[:user_id]), :include_blank => true, :class => "form-control"
+  .form-group
+    = label_tag do 
+      Quiz
+      = select_tag :quiz_id, options_from_collection_for_select(Quiz.all, :id, :label, params[:quiz_id]), :include_blank => true, :class => "form-control"
+  = submit_tag 'Filter', { :class => 'btn btn-default', :style => "margin-top:15px"}
+
+= paginate @quiz_results, :theme => 'twitter-bootstrap-3'
+
+%table.table.table-striped
+  %tr
+    %th id
+    %th Quiz
+    %th User
+    %th Score
+    %th
+
+  - @quiz_results.each do |quiz_result|
+    %tr
+      %td= quiz_result.id
+      %td= quiz_result.quiz.try :label
+      %td= quiz_result.user.try :email
+      %td= quiz_result.score
+      %td
+        = link_to 'Show', quiz_result

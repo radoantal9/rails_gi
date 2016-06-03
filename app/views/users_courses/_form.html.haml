@@ -1,0 +1,12 @@
+= simple_form_for @users_course, html: { class: 'form-small form-horizontal', role: 'form' } do |f|
+  - if @users_course.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@users_course.errors.count, "error")} prohibited this users_course from being saved:"
+      %ul
+        - @users_course.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.association :user, label_method: :email
+  = f.association :course
+  .actions
+    = f.submit 'Save', class: "btn btn-default"

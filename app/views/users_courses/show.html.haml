@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b User:
+  = @users_course.user
+%p
+  %b Course:
+  = @users_course.course
+
+= link_to 'Edit', edit_users_course_path(@users_course)
+\|
+= link_to 'Back', users_courses_path
